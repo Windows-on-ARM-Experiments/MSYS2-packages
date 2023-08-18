@@ -1,0 +1,72 @@
+--- a/mingw-w64-crt/intrincs/ilockand64.c
++++ b/mingw-w64-crt/intrincs/ilockand64.c
+@@ -7,6 +7,8 @@
+ #else
+ __int64 __stdcall InterlockedCompareExchange64(__int64 volatile *Destination,
+   __int64 Exchange, __int64 Comperand);
++
++#if !defined(__INTRINSIC_DEFINED__InterlockedAnd64)  
+ __int64 _InterlockedAnd64 (__int64 volatile *Destination,__int64 Value);
+ __int64 _InterlockedAnd64 (__int64 volatile *Destination,__int64 Value)
+ {
+@@ -16,6 +18,9 @@ __int64 _InterlockedAnd64 (__int64 volatile *Destination,__int64 Value)
+   } while(InterlockedCompareExchange64(Destination,Old & Value,Old)!=Old);
+   return Old;
+ }
++#define __INTRINSIC_DEFINED__InterlockedAnd64
++#endif
++
+ #endif
+ 
+ #ifdef _WIN64
+--- a/mingw-w64-crt/intrincs/ilockor64.c
++++ b/mingw-w64-crt/intrincs/ilockor64.c
+@@ -7,6 +7,8 @@
+ #else
+ __int64 __stdcall InterlockedCompareExchange64(__int64 volatile *Destination,
+   __int64 Exchange, __int64 Comperand);
++
++#if !defined(__INTRINSIC_DEFINED__InterlockedOr64)
+ __int64 _InterlockedOr64 (__int64 volatile *Destination,__int64 Value);
+ __int64 _InterlockedOr64 (__int64 volatile *Destination,__int64 Value)
+ {
+@@ -16,6 +18,9 @@ __int64 _InterlockedOr64 (__int64 volatile *Destination,__int64 Value)
+   } while(InterlockedCompareExchange64(Destination,Old | Value,Old)!=Old);
+   return Old;
+ }
++#define __INTRINSIC_DEFINED__InterlockedOr64
++#endif
++
+ #endif
+ 
+ #ifdef _WIN64
+--- a/mingw-w64-crt/intrincs/ilockxor64.c
++++ b/mingw-w64-crt/intrincs/ilockxor64.c
+@@ -7,16 +7,21 @@
+ #else
+ __int64 __stdcall InterlockedCompareExchange64(__int64 volatile *Destination,
+   __int64 Exchange, __int64 Comperand);
++
++#if !defined(__INTRINSIC_DEFINED__InterlockedXor64)
+ __int64 _InterlockedXor64 (__int64 volatile *Destination,__int64 Value);
+ __int64 _InterlockedXor64 (__int64 volatile *Destination,__int64 Value)
+ {
+-    __int64 Old;
+-    do {
+-      Old = *Destination;
+-    } while(InterlockedCompareExchange64(Destination,Old ^ Value,Old)!=Old);
++  __int64 Old;
++  do {
++    Old = *Destination;
++  } while(InterlockedCompareExchange64(Destination,Old ^ Value,Old)!=Old);
++
++  return Old;
++}
++#define __INTRINSIC_DEFINED__InterlockedXor64
++#endif
+ 
+-    return Old;
+-  }
+ #endif
+ 
+ #ifdef _WIN64
