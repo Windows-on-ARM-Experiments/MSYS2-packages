@@ -2,12 +2,16 @@
 # Contributor: Martell Malone <martellmalone@gmail.com>
 
 _realname=binutils
+_base_ver=2.42
 _mingw_suff=mingw-w64-cross
+_target_archs="aarch64 x86_64"
+#_target_archs="aarch64 x86_64 i686"
+
 pkgname=("${_mingw_suff}-${_realname}")
 pkgver=2.42
 pkgrel=1
 pkgdesc="A set of programs to assemble and manipulate binary and object files"
-arch=('i686' 'x86_64')
+arch=('aarch64' 'i686' 'x86_64')
 url="https://www.gnu.org/software/binutils/"
 msys2_references=(
   "cpe: cpe:/a:gnu:binutils"
@@ -16,37 +20,49 @@ license=('GPL')
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
 depends=("libiconv" "zlib" "libzstd")
 checkdepends=('dejagnu' 'bc')
-makedepends=("libiconv-devel" "zlib-devel" 'autotools' 'gcc' 'libzstd-devel')
-options=('staticlibs' '!distcc' '!ccache' '!buildflags')
-source=(https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.xz{,.sig}
+makedepends=("git" "libiconv-devel" "zlib-devel" 'autotools' 'gcc' 'libzstd-devel' 'gmp-devel' 'mpfr-devel')
+provides=($(for _target_arch in $_target_archs; do echo "mingw-w64-${_target_arch}-binutils"; done))
+
+options=('staticlibs' '!distcc' '!buildflags')
+source=("${_realname}"::"git+https://github.com/Windows-on-ARM-Experiments/binutils-woarm64.git#branch=woarm64"
         0002-check-for-unusual-file-harder.patch
-        0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch)
-sha256sums=('f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800'
+        0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch
+        9100-mingw-aarch64.patch
+        9999-workarounds.patch)
+sha256sums=('SKIP'
             'SKIP'
-            '2c99345fc575c3a060d6677537f636c6c4154fac0fde508070f3b6296c1060d4'
-            '4e8ac055df61b1b5d6ae29dc87e1154737c2e87c7b244b44866702cabf1a5d18')
-validpgpkeys=('EAF1C276A747E9ED86210CBAC3126D3B4AE55E93'
-              '3A24BC1E8FB409FA9F14371813FCEF89DD9E3C4F')
+            '4e8ac055df61b1b5d6ae29dc87e1154737c2e87c7b244b44866702cabf1a5d18'
+            'SKIP'
+            'SKIP')
 msys2_references=(
   'archlinux: binutils'
 )
 
-_targets="x86_64-w64-mingw32ucrt i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="aarch64-w64-mingw32 x86_64-w64-mingw32"
+#_targets="aarch64-w64-mingw32 x86_64-w64-mingw32ucrt i686-w64-mingw32 x86_64-w64-mingw32"
 
 apply_patch_with_msg() {
   for _patch in "$@"
   do
     msg2 "Applying ${_patch}"
-    patch -p1 -i "${srcdir}/${_patch}"
+    patch -Nbp1 -F0 --verbose -i ${srcdir}/${_patch}
   done
 }
 
+pkgver() {
+  cd "${srcdir}/${_realname}"
+
+  printf "%s.r%s.%s" "${_base_ver}" "$(git rev-list --count HEAD)" "$(git rev-parse --short=12 HEAD)"
+}
+
 prepare() {
-  cd ${srcdir}/binutils-${pkgver}
+  cd ${srcdir}/${_realname}
 
   apply_patch_with_msg \
     0002-check-for-unusual-file-harder.patch \
-    0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch
+    0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch \
+    9100-mingw-aarch64.patch \
+    9999-workarounds.patch
 }
 
 build() {
@@ -61,7 +77,7 @@ build() {
 
     MSYSTEM=CYGWIN
     local CYGWIN_CHOST="${CHOST/-msys/-cygwin}"
-    ${srcdir}/binutils-${pkgver}/configure \
+    ${srcdir}/binutils/configure \
       --build=${CYGWIN_CHOST} \
       --host=${CYGWIN_CHOST} \
       --target=${_target} \

@@ -9,10 +9,10 @@ And since configure script expects /dev/nul, do report it that way.
 diff -urN binutils-2.27.orig/binutils/bucomm.c binutils-2.27/binutils/bucomm.c
 --- binutils-2.27.orig/binutils/bucomm.c	2016-08-03 09:36:51.000000000 +0200
 +++ binutils-2.27/binutils/bucomm.c	2016-09-21 20:43:33.158175700 +0200
-@@ -575,6 +575,15 @@
- {
-   struct stat statbuf;
-
+@@ -575,6 +575,15 @@ get_file_size (const char * file_name)
+   if (file_name == NULL)
+     return (off_t) -1;
+ 
 +  int f, t;
 +  t = -1;
 +  f = open (file_name, O_RDONLY | O_BINARY);
@@ -62,9 +62,9 @@ diff -urN binutils-2.27.orig/binutils/elfedit.c binutils-2.27/binutils/elfedit.c
    if (statbuf_p == NULL)
      statbuf_p = &statbuf;
 @@ -497,8 +505,13 @@
-       return 1;
      }
-
+ #endif
+ 
 -  if (! S_ISREG (statbuf_p->st_mode))
 +  if (! S_ISREG (statbuf_p->st_mode) || t > 0)
      {

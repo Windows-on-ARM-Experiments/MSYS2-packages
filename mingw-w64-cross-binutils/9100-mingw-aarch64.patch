@@ -1,0 +1,123 @@
+--- a/binutils/testsuite/binutils-all/dlltool.exp
++++ b/binutils/testsuite/binutils-all/dlltool.exp
+@@ -22,8 +22,10 @@
+ 
+ if {![istarget "i*86-*-*pe*"] \
+     && ![istarget "i*86-*-cygwin*"] \
++    && ![istarget "aarch64-*-cygwin*"] \
+     && ![istarget "i*86-*-mingw32*"] \
+     && ![istarget "arm-*-pe*"] \
++    && ![istarget "aarch64-*-mingw*"] \
+     && ![istarget "x86_64-*-mingw*"] } {
+     set target_xfail "yes"
+ } else {
+--- a/config/picflag.m4
++++ b/config/picflag.m4
+@@ -23,9 +23,9 @@
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[[34567]]86-*-cygwin* | x86_64-*-cygwin*)
++    i[[34567]]86-*-cygwin* | x86_64-*-cygwin* | aarch64-*-cygwin*)
+ 	;;
+-    i[[34567]]86-*-mingw* | x86_64-*-mingw*)
++    i[[34567]]86-*-mingw* | x86_64-*-mingw* | aarch64-*-mingw*)
+ 	;;
+     i[[34567]]86-*-interix[[3-9]]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
+--- a/gas/testsuite/gas/all/gas.exp
++++ b/gas/testsuite/gas/all/gas.exp
+@@ -195,7 +195,8 @@
+ 	setup_xfail "bfin-*-*" "i\[3-7\]86-*-*coff" \
+ 	    "i\[3-7\]86-*-*pe" "i\[3-7\]86-*-go32*" \
+	    "i\[3-7\]86-*-cygwin*" "i\[3-7\]86-*-mingw*" \
+-	    "x86_64-*-cygwin*" "x86_64-*-mingw*"
++	    "x86_64-*-cygwin*" "x86_64-*-mingw*" \
++	    "aarch64-*-cygwin*" "aarch64-*-mingw*"
+ 	run_dump_test redef3
+ 	gas_test_error "redef4.s" "" ".set for symbol already used as label"
+ 	gas_test_error "redef5.s" "" ".set for symbol already defined through .comm"
+--- a/ld/configure.tgt
++++ b/ld/configure.tgt
+@@ -1145,7 +1145,7 @@ spu-*-elf*)
+   NATIVE_LIB_DIRS='/lib'
+   ;;
+ 
+-i[03-9x]86-*-cygwin* | x86_64-*-cygwin*)
++i[03-9x]86-*-cygwin* | x86_64-*-cygwin* | aarch64-*-cygwin*)
+   NATIVE_LIB_DIRS='/usr/lib /usr/lib/w32api'
+   ;;
+ 
+ *-*-linux*)
+--- a/ld/emultempl/pe.em
++++ b/ld/emultempl/pe.em
+@@ -70,7 +70,8 @@ fragment <<EOF
+ 
+ case ${target} in
+   x86_64-*-mingw* | x86_64-*-pe | x86_64-*-pep | x86_64-*-cygwin | \
+-  i[3-7]86-*-mingw32* | i[3-7]86-*-cygwin* | i[3-7]86-*-winnt | i[3-7]86-*-pe)
++  i[3-7]86-*-mingw32* | i[3-7]86-*-cygwin* | i[3-7]86-*-winnt | i[3-7]86-*-pe | \
++  aarch64-*-mingw* | aarch64-*-pe | aarch64-*-pep | aarch64-*-cygwin*)
+ fragment <<EOF
+ #include "pdb.h"
+ EOF
+@@ -212,7 +212,7 @@ EOF
+     default_auto_import=1
+     default_merge_rdata=0
+     ;;
+-  i[3-7]86-*-mingw* | x86_64-*-mingw*)
++  i[3-7]86-*-mingw* | x86_64-*-mingw* | aarch64-*-mingw*)
+     default_auto_import=1
+     default_merge_rdata=0
+     ;;
+--- a/ld/testsuite/ld-fastcall/fastcall.exp
++++ b/ld/testsuite/ld-fastcall/fastcall.exp
+@@ -26,6 +26,8 @@
+ 
+ if {  !([istarget "i*86-*-*pe*"] && ![istarget "i*86-*-opensd*"]) \
+     && ![istarget "i*86-*-cygwin*"] \
++    && ![istarget "aarch64-*-cygwin*"] \
++    && ![istarget "aarch64-*-mingw*"] \
+     && ![istarget "x86_64-*-mingw*"] \
+     && ![istarget "i*86-*-mingw*"] } {
+     return
+--- a/ld/testsuite/ld-pe/pe-compile.exp
++++ b/ld/testsuite/ld-pe/pe-compile.exp
+@@ -116,8 +116,10 @@
+ run_ver_script_test "vers-script-4"
+ 
+ if {[istarget i*86-*-cygwin*]
++    || [istarget aarch64-*-cygwin*]
+     || [istarget i*86-*-pe]
+     || [istarget i*86-*-mingw*]
++    || [istarget aarch64-*-mingw*]
+     || [istarget x86_64-*-mingw*] } {
+ 
+    build_basefile1_o
+--- a/ld/testsuite/ld-pe/pe.exp
++++ b/ld/testsuite/ld-pe/pe.exp
+@@ -26,8 +26,10 @@
+ 
+ # This test can only be run on PE/COFF platforms that support .secrel32.
+ if {[istarget i*86-*-cygwin*]
++    || [istarget aarch64-*-cygwin*]
+     || [istarget i*86-*-pe]
+     || [istarget i*86-*-mingw*]
++    || [istarget aarch64-*-mingw*]
+     || [istarget x86_64-*-mingw*]
+     || [istarget arm-wince-pe] } {
+ 
+--- a/libiberty/configure
++++ b/libiberty/configure
+@@ -5336,9 +5336,9 @@ case "${host}" in
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++    i[34567]86-*-cygwin* | x86_64-*-cygwin* | aarch64-*-cygwin*)
+ 	;;
+-    i[34567]86-*-mingw* | x86_64-*-mingw*)
++    i[34567]86-*-mingw* | x86_64-*-mingw* | aarch64-*-mingw*)
+ 	;;
+     i[34567]86-*-interix[3-9]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
