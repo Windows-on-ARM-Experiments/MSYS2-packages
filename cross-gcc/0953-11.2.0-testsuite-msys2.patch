@@ -1,0 +1,688 @@
+--- a/gcc/testsuite/g++.dg/abi/bitfield3.C
++++ b/gcc/testsuite/g++.dg/abi/bitfield3.C
+@@ -3,7 +3,7 @@
+ // { dg-options "-O2" }
+ // Cygwin and mingw default to MASK_ALIGN_DOUBLE. Override to ensure
+ // 4-byte alignment.
+-// { dg-additional-options "-mno-align-double" { target i?86-*-cygwin* i?86-*-mingw* } }
++// { dg-additional-options "-mno-align-double" { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* } }
+ // As for mingw target the ms-bitfield switch is activated by default,
+ // make sure for this test that it is disabled.
+ // { dg-additional-options "-mno-ms-bitfields" { target i?86-*-mingw* } }
+--- a/gcc/testsuite/g++.dg/abi/rtti3.C
++++ b/gcc/testsuite/g++.dg/abi/rtti3.C
+@@ -2,7 +2,7 @@
+ // necessarily the type info object
+ 
+ // { dg-require-weak "" }
+-// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin } }
++// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin *-*-msys } }
+ // { dg-final { scan-assembler ".weak\[ \t\]_?_ZTSPP1A" { target { ! { *-*-darwin* hppa*-*-hpux* } } } } }
+ // { dg-final { scan-assembler-not ".weak\[ \t\]_?_ZTIPP1A" { target { ! { *-*-darwin* } } } } }
+ // { dg-final { scan-assembler ".weak_definition\[ \t\]_?_ZTSPP1A" { target { *-*-darwin* } } } }
+--- a/gcc/testsuite/g++.dg/abi/thunk4.C
++++ b/gcc/testsuite/g++.dg/abi/thunk4.C
+@@ -1,5 +1,5 @@
+ // { dg-require-weak "" }
+-// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin } }
++// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin *-*-msys } }
+ // { dg-final { scan-assembler ".weak\[ \t\]_?_ZThn._N7Derived3FooEv" { target { ! { *-*-darwin* } } } } }
+ // { dg-final { scan-assembler ".weak_definition\[ \t\]_?_ZThn._N7Derived3FooEv" { target { *-*-darwin* } } } }
+ 
+--- a/gcc/testsuite/g++.dg/compat/struct-layout-1_generate.c
++++ b/gcc/testsuite/g++.dg/compat/struct-layout-1_generate.c
+@@ -46,8 +46,8 @@
+ const char *dg_options[] = {
+ "/* { dg-options \"%s%s-I%s -Wno-abi\" } */\n",
+ "/* { dg-options \"%s%s-I%s -mno-mmx -Wno-abi\" { target i?86-*-* x86_64-*-* } } */\n",
+-"/* { dg-options \"%s%s-I%s -fno-common\" { target hppa*-*-hpux* powerpc*-*-darwin* *-*-mingw32* *-*-cygwin* } } */\n",
+-"/* { dg-options \"%s%s-I%s -mno-mmx -fno-common -Wno-abi\" { target i?86-*-darwin* x86_64-*-darwin* i?86-*-mingw32* x86_64-*-mingw32* i?86-*-cygwin* } } */\n",
++"/* { dg-options \"%s%s-I%s -fno-common\" { target hppa*-*-hpux* powerpc*-*-darwin* *-*-mingw32* *-*-cygwin* *-*-msys* } } */\n",
++"/* { dg-options \"%s%s-I%s -mno-mmx -fno-common -Wno-abi\" { target i?86-*-darwin* x86_64-*-darwin* i?86-*-mingw32* x86_64-*-mingw32* i?86-*-cygwin* i?86-*-msys* } } */\n",
+ "/* { dg-options \"%s%s-I%s -mno-base-addresses\" { target mmix-*-* } } */\n",
+ "/* { dg-options \"%s%s-I%s -mlongcalls -mtext-section-literals\" { target xtensa*-*-* } } */\n"
+ #define NDG_OPTIONS (sizeof (dg_options) / sizeof (dg_options[0]))
+--- a/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C
++++ b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C
+@@ -1,7 +1,7 @@
+ // Test for conversion from stateless lambda to function pointer.
+ 
+ // { dg-do compile { target c++11_only } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1fvENKUlvE_cvPFvvEEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1fvENKUlvE_cvPFvvEEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin *-*-msys } } } } }
+ 
+ inline void f()
+ {
+--- a/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C
++++ b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C
+@@ -12,7 +12,7 @@
+   // The call operator of that type is _ZZ1giENKUlvE_clEv.
+ 
+ // { dg-final { scan-assembler "_ZZ1giENKUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1giENKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1giENKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin *-*-msys } } } } }
+ 
+   algo([=]{return n+bef();});
+   // The captured entities do not participate in <lambda-sig>
+@@ -34,7 +34,7 @@
+ 	 // Type: ZN1S1fEiiEd0_UlvE_
+ 	 // Operator: _ZZN1S1fEiiEd0_NKUlvE_clEv
+ // { dg-final { scan-assembler "_ZZN1S1fEiiEd0_NKUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZN1S1fEiiEd0_NKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZN1S1fEiiEd0_NKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin *-*-msys } } } } }
+ 	 []{return 1;}()
+ 	 // Type: ZN1S1fEiiEd0_UlvE0_
+ 	 // Operator: _ZZN1S1fEiiEd0_NKUlvE0_clEv
+--- a/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle6.C
++++ b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle6.C
+@@ -12,4 +12,4 @@
+ // Type of lambda in intializer of R<int>::x: N1RIiE1xMUlvE_E
+ // Corresponding operator(): _ZNK1RIiE1xMUlvE_clEv
+ // { dg-final { scan-assembler "_ZNK1RIiE1xMUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZNK1RIiE1xMUlvE_clEv" { target { ! { *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZNK1RIiE1xMUlvE_clEv" { target { ! { *-*-mingw* *-*-cygwin *-*-msys } } } } }
+--- a/gcc/testsuite/g++.dg/ext/dllexport-MI1.C
++++ b/gcc/testsuite/g++.dg/ext/dllexport-MI1.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw*} }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw*} }
+ //  Test that non-virtual MI thunks are exported.
+ 
+ 
+--- a/gcc/testsuite/g++.dg/ext/dllexport1.C
++++ b/gcc/testsuite/g++.dg/ext/dllexport1.C
+@@ -1,5 +1,5 @@
+ // Test that inline functions are exported with -fkeep-inline-functions.
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw*} }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw*} }
+ // { dg-options -fkeep-inline-functions } 
+ 
+ __attribute__((dllexport)) inline int foo (int a) { return a;}
+--- a/gcc/testsuite/g++.dg/ext/dllexport3.C
++++ b/gcc/testsuite/g++.dg/ext/dllexport3.C
+@@ -1,5 +1,5 @@
+ // PR c++/42870
+-// { dg-do compile { target i?86-*-cygwin *-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin i?86-*-msys *-*-mingw* } }
+ // { dg-final { scan-assembler "-export:\[\\\\\"\]*_ZN2SaD1Ev" } }
+ 
+ #define ATTRIBUTE __attribute__ ((dllexport))
+--- a/gcc/testsuite/g++.dg/ext/dllimport-MI1.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport-MI1.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ //  Test handling of MI thunks in dllimported classes.
+ 
+ // To build the dll and client app:
+--- a/gcc/testsuite/g++.dg/ext/dllimport-initialized.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport-initialized.C
+@@ -1,3 +1,3 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ __attribute__((dllimport)) int i __attribute__((unused)) = 0;  // { dg-error "32:definition of .int i. is marked .dllimport." }
+--- a/gcc/testsuite/g++.dg/ext/dllimport1.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport1.C
+@@ -1,5 +1,5 @@
+ //  PR c++/7910
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ // { dg-options { -Wall -W } }
+ 
+ class __attribute__((dllimport)) Foo
+--- a/gcc/testsuite/g++.dg/ext/dllimport10.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport10.C
+@@ -1,7 +1,7 @@
+ // PR c++/5287, c++/11021
+ // Inherit a virtual method from a dllimport'd base class.
+ 
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ struct __attribute__((dllimport)) A
+ {
+--- a/gcc/testsuite/g++.dg/ext/dllimport11.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport11.C
+@@ -1,6 +1,6 @@
+ // PR target/23589
+ // Template member functions do not get dllimport status of class.
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ struct __attribute__((dllimport)) Foo
+ {
+--- a/gcc/testsuite/g++.dg/ext/dllimport12.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport12.C
+@@ -1,7 +1,7 @@
+ // PR target/27650
+ // Don't use dllimport semantics on virtual methods when initializing
+ // vtables
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ // Use import lib thunk for vtable entry of explicitly virtual method,
+ struct base
+--- a/gcc/testsuite/g++.dg/ext/dllimport13.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport13.C
+@@ -1,7 +1,7 @@
+ //  PR c++/34749
+ //  Ensure dllimport is handled correctly for friends
+ 
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ int  __declspec (dllimport) bar();
+ int  __declspec (dllimport) baz();
+--- a/gcc/testsuite/g++.dg/ext/dllimport2.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport2.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ // PR c++/9738  Dllimport attribute is overriden by later definition/redeclaration
+ 
+ void __attribute__((dllimport)) Bar(void);
+--- a/gcc/testsuite/g++.dg/ext/dllimport3.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport3.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ // PR 10148  Dllimport attribute of object is overriden by later
+ // redefinition without attribute.
+--- a/gcc/testsuite/g++.dg/ext/dllimport4.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport4.C
+@@ -1,5 +1,5 @@
+ //  Report error if dllimport attribute in definition itself.
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ __attribute__((dllimport))  void bar () { }	// { dg-error "definition" }
+ 
+--- a/gcc/testsuite/g++.dg/ext/dllimport5.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport5.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ //  Report error if static symbol definition has dllimport attribute.
+ 
+ __attribute__((dllimport))
+--- a/gcc/testsuite/g++.dg/ext/dllimport6.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport6.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ //  Mark class static members as dllimport.
+ 
+ struct Baz
+--- a/gcc/testsuite/g++.dg/ext/dllimport7.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport7.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ //  Report errors on definition of dllimport'd static data member . 
+ 
+@@ -19,7 +19,7 @@
+ };
+ 
+ const int Bar::three = 3;       //  { dg-warning "redeclared without dllimport" }
+-//  { dg-error "definition of static data" "C++ specific error" { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } .-1 }
++//  { dg-error "definition of static data" "C++ specific error" { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } .-1 }
+ 				
+ const Baz Bar::null_baz;	//  { dg-warning "redeclared without dllimport" }
+ 
+--- a/gcc/testsuite/g++.dg/ext/dllimport8.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport8.C
+@@ -2,7 +2,7 @@
+ //  Ignore  dllimport of static members if marked inlined.
+ //  or if definition follows  declaration in dllimported class.
+ 
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ // { dg-options { -Wall -W } }
+ 
+ struct  __attribute__((dllimport)) Foo
+--- a/gcc/testsuite/g++.dg/ext/dllimport9.C
++++ b/gcc/testsuite/g++.dg/ext/dllimport9.C
+@@ -1,5 +1,5 @@
+ //  Handle dllimport attribute for functions declared inline.
+-// { dg-do compile { target i?86-*-cygwin* i?86-*-mingw* x86_64-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* i?86-*-msys* i?86-*-mingw* x86_64-*-mingw* } }
+ // { dg-options { -W } }
+ 
+ inline __attribute__((dllimport)) void bar() { }	// { dg-warning "inline" }
+--- a/gcc/testsuite/g++.dg/ext/selectany1.C
++++ b/gcc/testsuite/g++.dg/ext/selectany1.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-pc-cygwin } }
++// { dg-do compile { target i?86-pc-cygwin i?86-pc-msys } }
+ // { dg-do compile { target i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ // Check that selectany attribute puts symbols into link-once sections.
+--- a/gcc/testsuite/g++.dg/ext/selectany2.C
++++ b/gcc/testsuite/g++.dg/ext/selectany2.C
+@@ -1,4 +1,4 @@
+-// { dg-do compile { target i?86-pc-cygwin } }
++// { dg-do compile { target i?86-pc-cygwin i?86-pc-msys } }
+ // { dg-do compile { target i?86-*-mingw* x86_64-*-mingw* } }
+ 
+ // Check for errors with invalid usage of selectany attribute.
+--- a/gcc/testsuite/g++.dg/opt/vt1.C
++++ b/gcc/testsuite/g++.dg/opt/vt1.C
+@@ -1,7 +1,7 @@
+ // Test whether vtable for S is not put into read-only section.
+ // { dg-do compile { target fpic } }
+ // { dg-options "-O2 -fpic -fno-rtti" }
+-// { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin } }
++// { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin *-*-msys } }
+ // Origin: Jakub Jelinek <jakub@redhat.com>
+ 
+ struct S
+--- a/gcc/testsuite/g++.dg/template/spec35.C
++++ b/gcc/testsuite/g++.dg/template/spec35.C
+@@ -24,6 +24,6 @@
+   // { dg-final { scan-assembler-not ".glob(a|)l\[\t \]*_?_Z2f1IiEvT_" } }
+   f1(0);  // Expected to have static linkage
+ 
+-  // { dg-final { scan-assembler ".weak(_definition)?\[\t \]*_?_Z2f2IiEvT_" { target { ! { *-*-mingw* *-*-cygwin } } } } }
++  // { dg-final { scan-assembler ".weak(_definition)?\[\t \]*_?_Z2f2IiEvT_" { target { ! { *-*-mingw* *-*-cygwin *-*-msys } } } } }
+   f2(0);  // Expected to have weak global linkage
+ }
+--- a/gcc/testsuite/g++.old-deja/g++.ext/attrib5.C
++++ b/gcc/testsuite/g++.old-deja/g++.ext/attrib5.C
+@@ -1,4 +1,4 @@
+-// { dg-do run { xfail i?86-pc-cygwin } }
++// { dg-do run { xfail i?86-pc-cygwin i?86-pc-msys } }
+ // Test that attributes weak and alias coexist.
+ // { dg-require-weak "" }
+ // { dg-require-alias "" }
+--- a/gcc/testsuite/gcc.dg/bf-ms-attrib.c
++++ b/gcc/testsuite/gcc.dg/bf-ms-attrib.c
+@@ -3,7 +3,7 @@
+    posted to GCC-patches
+    http://gcc.gnu.org/ml/gcc-patches/2000-08/msg00577.html */ 
+ 
+-/* { dg-do run { target *-*-mingw* *-*-cygwin* } } */
++/* { dg-do run { target *-*-mingw* *-*-cygwin* *-*-msys* } } */
+ 
+ /* We don't want the default "pedantic-errors" in this case, since we're
+    testing nonstandard stuff to begin with. */
+--- a/gcc/testsuite/gcc.dg/bf-ms-layout-3.c
++++ b/gcc/testsuite/gcc.dg/bf-ms-layout-3.c
+@@ -1,5 +1,5 @@
+ /* Test for MS bitfield layout */
+-/* { dg-do run { target *-*-mingw* *-*-cygwin* i?86-*-* x86_64-*-* } } */
++/* { dg-do run { target *-*-mingw* *-*-cygwin* *-*-msys* i?86-*-* x86_64-*-* } } */
+ 
+ extern void abort();
+ 
+--- a/gcc/testsuite/gcc.dg/bf-no-ms-layout.c
++++ b/gcc/testsuite/gcc.dg/bf-no-ms-layout.c
+@@ -5,7 +5,7 @@
+    posted to GCC-patches
+    http://gcc.gnu.org/ml/gcc-patches/2000-08/msg00577.html */
+ 
+-/* { dg-do run { target *-*-mingw* *-*-cygwin* i?86-*-darwin } } */
++/* { dg-do run { target *-*-mingw* *-*-cygwin* *-*-msys* i?86-*-darwin } } */
+ /* { dg-options "-mno-ms-bitfields" } */
+ 
+ #include <stddef.h>
+--- a/gcc/testsuite/gcc.dg/dll-3.c
++++ b/gcc/testsuite/gcc.dg/dll-3.c
+@@ -1,7 +1,7 @@
+ /* Ensure dllexport overrides dllimport.  */
+ 
+ /* { dg-do compile { target arm*-*-pe* } } */
+-/* { dg-do compile { target i?86-pc-cygwin } } */
++/* { dg-do compile { target i?86-pc-cygwin i?86-pc-msys } } */
+ /* { dg-do compile { target i?86-*-mingw* x86_64-*-mingw*} } */
+ 
+ __declspec (dllimport) int foo1 ();
+--- a/gcc/testsuite/gcc.dg/dll-4.c
++++ b/gcc/testsuite/gcc.dg/dll-4.c
+@@ -1,5 +1,5 @@
+ /* { dg-do compile { target arm*-*-pe* } } */
+-/* { dg-do compile { target i?86-pc-cygwin } } */
++/* { dg-do compile { target i?86-pc-cygwin i?86-pc-msys } } */
+ /* { dg-do compile { target i?86-*-mingw* x86_64-*-mingw* } } */
+ 
+ __declspec (dllimport) int foo1;
+--- a/gcc/testsuite/gcc.dg/dll-8.c
++++ b/gcc/testsuite/gcc.dg/dll-8.c
+@@ -1,4 +1,4 @@
+-/* { dg-do compile { target i?86-pc-cygwin } } */
++/* { dg-do compile { target i?86-pc-cygwin i?86-pc-msys } } */
+ /* { dg-do compile { target i?86-*-mingw* x86_64-*-mingw*} } */
+ /* { dg-options "-O3 -fwhole-program" } */
+ /* { dg-final { scan-assembler "foo1" } } */
+--- a/gcc/testsuite/gcc.dg/graphite/run-id-1.c
++++ b/gcc/testsuite/gcc.dg/graphite/run-id-1.c
+@@ -1,4 +1,4 @@
+-/* { dg-options "-Wl,--stack,12582912" { target *-*-mingw* *-*-cygwin* } } */
++/* { dg-options "-Wl,--stack,12582912" { target *-*-mingw* *-*-cygwin* *-*-msys* } } */
+ /* { dg-require-effective-target size32plus } */
+ /* { dg-require-stack-size "4*1000*1000" } */
+ 
+--- a/gcc/testsuite/gcc.dg/lto/20090914-2_0.c
++++ b/gcc/testsuite/gcc.dg/lto/20090914-2_0.c
+@@ -1,7 +1,7 @@
+ /* { dg-lto-do run } */
+ /* { dg-skip-if "x86 only" { ! { x86_64-*-* i?86-*-* } } } */
+ /* { dg-skip-if "no .type" { *-*-darwin* } } */
+-/* { dg-skip-if "no @function" { *-*-mingw* *-*-cygwin* } } */
++/* { dg-skip-if "no @function" { *-*-mingw* *-*-cygwin* *-*-msys* } } */
+ 
+ /* Doesn't work without this dummy function with -fwhopr.  */
+ int foo(void) { }
+--- a/gcc/testsuite/gcc.dg/tree-ssa/loop-1.c
++++ b/gcc/testsuite/gcc.dg/tree-ssa/loop-1.c
+@@ -46,10 +46,10 @@
+ /* CRIS and MSP430 keep the address in a register.  */
+ /* m68k sometimes puts the address in a register, depending on CPU and PIC.  */
+ 
+-/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* cris-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
++/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* cris-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* i?86-*-msys* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
+ /* { dg-final { scan-assembler-times "foo,%r" 5 { target hppa*-*-* } } } */
+ /* { dg-final { scan-assembler-times "= foo"  5 { target ia64*-*-* } } } */
+-/* { dg-final { scan-assembler-times "call\[ \t\]*_foo" 5 { target i?86-*-mingw* i?86-*-cygwin* } } } */
++/* { dg-final { scan-assembler-times "call\[ \t\]*_foo" 5 { target i?86-*-mingw* i?86-*-cygwin* i?86-*-msys* } } } */
+ /* { dg-final { scan-assembler-times "call\[ \t\]*foo" 5 { target x86_64-*-mingw* } } } */
+ /* { dg-final { scan-assembler-times "jsr|bsrf|blink\ttr?,r18"  5 { target sh*-*-* } } } */
+ /* { dg-final { scan-assembler-times "Jsr \\\$r" 5 { target cris-*-* } } } */
+--- a/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c
++++ b/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c
+@@ -10,4 +10,4 @@
+ 
+ /* There should be a reference to conststaticvariable since it may
+    may be overriden at link time.  */
+-/* { dg-final { scan-tree-dump-times "conststaticvariable" 1 "optimized" { xfail { *-*-mingw* *-*-cygwin* } } } } */
++/* { dg-final { scan-tree-dump-times "conststaticvariable" 1 "optimized" { xfail { *-*-mingw* *-*-cygwin* *-*-msys* } } } } */
+--- a/gcc/testsuite/gcc.target/i386/fastcall-1.c
++++ b/gcc/testsuite/gcc.target/i386/fastcall-1.c
+@@ -1,4 +1,4 @@
+-/* { dg-do compile { target i?86-*-mingw32* i?86-*-cygwin* } } */
++/* { dg-do compile { target i?86-*-mingw32* i?86-*-cygwin* i?86-*-msys* } } */
+ /* { dg-options "-std=gnu89" } */
+ 
+ void
+--- a/gcc/testsuite/gcc.target/i386/pad-4.c
++++ b/gcc/testsuite/gcc.target/i386/pad-4.c
+@@ -2,7 +2,7 @@
+ /* { dg-require-effective-target ia32 } */
+ /* { dg-require-effective-target fpic } */
+ /* { dg-skip-if "" { *-*-* } { "-march=*" } { "-march=atom" } } */
+-/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin } } */
++/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin *-*-msys } } */
+ /* { dg-options "-O2 -fomit-frame-pointer -march=atom -fPIC" } */
+ /* { dg-final { scan-assembler-times "nop" 8 } } */
+ /* { dg-final { scan-assembler-not "rep" } } */
+--- a/gcc/testsuite/gcc.target/i386/pic-1.c
++++ b/gcc/testsuite/gcc.target/i386/pic-1.c
+@@ -2,7 +2,7 @@
+ /* { dg-do compile } */
+ /* { dg-require-effective-target ia32 } */
+ /* { dg-require-effective-target fpic } */
+-/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin } } */
++/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin *-*-msys } } */
+ /* { dg-options "-fPIC" } */
+ 
+ /* Test verifies that %ebx is no longer fixed when generating PIC code on i686.  */
+--- a/gcc/testsuite/gcc.target/i386/pr25993.c
++++ b/gcc/testsuite/gcc.target/i386/pr25993.c
+@@ -1,5 +1,5 @@
+ /* { dg-do assemble } */
+-/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" "*-*-cygwin*" } } */
++/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" "*-*-cygwin*" "*-*-msys*" } } */
+ /* { dg-options "-std=c99 -x assembler-with-cpp" } */
+ 
+ #ifndef __ASSEMBLER__
+--- a/gcc/testsuite/gcc.target/i386/pr40906-1.c
++++ b/gcc/testsuite/gcc.target/i386/pr40906-1.c
+@@ -1,7 +1,7 @@
+ /* { dg-do run } */
+ /* { dg-require-effective-target ia32 } */
+ /* { dg-options "-O2 -fomit-frame-pointer -fno-asynchronous-unwind-tables -mpush-args" } */
+-/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* } } } } */
++/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* *-*-msys* } } } } */
+ 
+ void abort (void);
+ 
+--- a/gcc/testsuite/gcc.target/i386/pr40906-2.c
++++ b/gcc/testsuite/gcc.target/i386/pr40906-2.c
+@@ -1,7 +1,7 @@
+ /* { dg-do run } */
+ /* { dg-require-effective-target ia32 } */
+ /* { dg-options "-O2 -Wno-psabi -fomit-frame-pointer -fno-asynchronous-unwind-tables -mpush-args -m128bit-long-double" } */
+-/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* } } } } */
++/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* *-*-msys* } } } } */
+ 
+ void abort (void);
+ 
+--- a/gcc/testsuite/gcc.target/i386/pr46226.c
++++ b/gcc/testsuite/gcc.target/i386/pr46226.c
+@@ -1,6 +1,6 @@
+ /* { dg-do run } */
+ /* { dg-options "-Os -fomit-frame-pointer -fno-asynchronous-unwind-tables" } */
+-/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* } } } } */
++/* { dg-additional-options "-mno-accumulate-outgoing-args" { target { ! { *-*-mingw* *-*-cygwin* *-*-msys* } } } } */
+ 
+ extern void abort(void);
+ 
+--- a/gcc/testsuite/gcc.target/i386/pr56564-1.c
++++ b/gcc/testsuite/gcc.target/i386/pr56564-1.c
+@@ -1,6 +1,6 @@
+ /* PR target/56564 */
+ /* { dg-do compile { target { fpic && lp64 } } } */
+-/* { dg-skip-if "No symbol interposition for PIC" { *-*-mingw* *-*-cygwin* *-*-darwin* } } */
++/* { dg-skip-if "No symbol interposition for PIC" { *-*-mingw* *-*-cygwin* *-*-msys* *-*-darwin* } } */
+ /* { dg-options "-O3 -fpic -fdump-tree-optimized" } */
+ 
+ struct S { long a, b; } s = { 5, 6 };
+--- a/gcc/testsuite/gcc.target/i386/pr56564-3.c
++++ b/gcc/testsuite/gcc.target/i386/pr56564-3.c
+@@ -1,6 +1,6 @@
+ /* PR target/56564 */
+ /* { dg-do compile { target { fpic && lp64 } } } */
+-/* { dg-skip-if "No symbol interposition for PIC" { *-*-mingw* *-*-cygwin* *-*-darwin* } } */
++/* { dg-skip-if "No symbol interposition for PIC" { *-*-mingw* *-*-cygwin* *-*-msys* *-*-darwin* } } */
+ /* { dg-options "-O3 -fpic -fdump-tree-optimized" } */
+ 
+ __thread struct S { long a, b; } s = { 5, 6 };
+--- a/gcc/testsuite/gcc.target/i386/sse-10.c
++++ b/gcc/testsuite/gcc.target/i386/sse-10.c
+@@ -1,7 +1,7 @@
+ /* PR 17930 */
+ /* { dg-do run } */
+ /* { dg-options "-O1 -msse2 -mfpmath=sse -fno-omit-frame-pointer" } */
+-/* { dg-additional-options "-mno-accumulate-outgoing-args -mno-omit-leaf-frame-pointer" { target { ! { *-*-mingw* *-*-cygwin* } } } } */
++/* { dg-additional-options "-mno-accumulate-outgoing-args -mno-omit-leaf-frame-pointer" { target { ! { *-*-mingw* *-*-cygwin* *-*-msys* } } } } */
+ /* { dg-require-effective-target sse2 } */
+ 
+ #include "sse2-check.h"
+--- a/gcc/testsuite/gcc.target/i386/stack-realign-win.c
++++ b/gcc/testsuite/gcc.target/i386/stack-realign-win.c
+@@ -1,4 +1,4 @@
+-/* { dg-do compile { target *-*-mingw* *-*-cygwin* } } */
++/* { dg-do compile { target *-*-mingw* *-*-cygwin* *-*-msys* } } */
+ /* { dg-require-effective-target ia32 } */
+ /* { dg-options "-msse -O" } */
+ 
+--- a/gcc/testsuite/gcc.target/x86_64/abi/ms-sysv/ms-sysv.exp
++++ b/gcc/testsuite/gcc.target/x86_64/abi/ms-sysv/ms-sysv.exp
+@@ -144,7 +144,7 @@
+ 	runtest_ms_sysv "$cflags" "$gen_opts"
+ 
+ 	# Skip unsupported -mcall-ms2sysv-xlogues on Windows
+-	if { ![istarget *-*-cygwin*] && ![istarget *-*-mingw*] } {
++	if { ![istarget *-*-cygwin*] && ![istarget *-*-msys*] && ![istarget *-*-mingw*] } {
+ 	    runtest_ms_sysv "-mcall-ms2sysv-xlogues$cflags" "$gen_opts"
+ 	}
+     }
++++ a/gcc/testsuite/lib/g++.exp
++++ b/gcc/testsuite/lib/g++.exp
+@@ -205,7 +205,7 @@
+ 
+     # Many hosts now default to a non-ASCII C locale, however, so
+     # they can set a charset encoding here if they need.
+-    if { [ishost "*-*-cygwin*"] } {
++    if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+       setenv LC_ALL C.ASCII
+       setenv LANG C.ASCII
+     }
+--- a/gcc/testsuite/lib/gcc-dg.exp
++++ b/gcc/testsuite/lib/gcc-dg.exp
+@@ -40,7 +40,7 @@
+ 
+ # Many hosts now default to a non-ASCII C locale, however, so
+ # they can set a charset encoding here if they need.
+-if { [ishost "*-*-cygwin*"] } {
++if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+   setenv LC_ALL C.ASCII
+   setenv LANG C.ASCII
+ }
+--- a/gcc/testsuite/lib/objc.exp
++++ b/gcc/testsuite/lib/objc.exp
+@@ -105,7 +105,7 @@
+ 
+     # Many hosts now default to a non-ASCII C locale, however, so
+     # they can set a charset encoding here if they need.
+-    if { [ishost "*-*-cygwin*"] } {
++    if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+       setenv LC_ALL C.ASCII
+       setenv LANG C.ASCII
+     }
+--- a/gcc/testsuite/lib/options.exp
++++ b/gcc/testsuite/lib/options.exp
+@@ -20,7 +20,7 @@
+ 
+ # Many hosts now default to a non-ASCII C locale, however, so
+ # they can set a charset encoding here if they need.
+-if { [ishost "*-*-cygwin*"] } {
++if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+   setenv LC_ALL C.ASCII
+   setenv LANG C.ASCII
+ }
+--- a/gcc/testsuite/lib/target-libpath.exp
++++ b/gcc/testsuite/lib/target-libpath.exp
+@@ -171,7 +171,7 @@
+   } else {
+     setenv DYLD_LIBRARY_PATH "$ld_library_path"
+   }
+-  if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
++  if { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
+     if { $orig_path_saved } {
+       setenv PATH "$ld_library_path:$orig_path"
+     } else {
+@@ -277,7 +277,7 @@
+ 
+     if { [istarget *-*-darwin*] } {
+ 	set shlib_ext "dylib"
+-    } elseif { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
++    } elseif { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
+ 	set shlib_ext "dll"
+     } elseif { [istarget hppa*-*-hpux*] } {
+ 	set shlib_ext "sl"
+--- a/gcc/testsuite/lib/target-supports.exp
++++ b/gcc/testsuite/lib/target-supports.exp
+@@ -304,7 +304,7 @@
+ 
+     # Windows targets Cygwin and MingW32 support it
+ 
+-    if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
++    if { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
+ 	return 1
+     }
+ 
+@@ -699,6 +699,11 @@
+ 	return 0
+     }
+ 
++    # MSYS does not support -p.
++    if { [istarget *-*-msys*] && $test_what == "-p" } {
++	return 0
++    }
++
+     # uClibc does not have gcrt1.o.
+     if { [check_effective_target_uclibc]
+ 	 && ($test_what == "-p" || $test_what == "-pg") } {
+@@ -1137,7 +1142,7 @@
+ # for trivial code, 0 otherwise.
+ 
+ proc check_effective_target_pe_aligned_commons {} {
+-    if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
++    if { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
+ 	return [check_no_compiler_messages pe_aligned_commons object {
+ 	    int foo;
+ 	} "-mpe-aligned-commons"]
+@@ -2629,7 +2634,7 @@
+ # Returns true iff "mkfifo" is available on the target system.
+ 
+ proc check_mkfifo_available {} {
+-    if { [istarget *-*-cygwin*] } {
++    if { [istarget *-*-cygwin*] || [istarget *-*-msys*] } {
+        # Cygwin has mkfifo, but support is incomplete.
+        return 0
+      }
+@@ -8549,7 +8554,7 @@
+ proc check_effective_target_automatic_stack_alignment  { } {
+     # Ordinarily x86 supports automatic stack alignment ...
+     if { [istarget i?86*-*-*] || [istarget x86_64-*-*] } then {
+-        if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] } {
++        if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] || [istarget *-*-msys*] } {
+ 	    # ... except Win64 SEH doesn't.  Succeed for Win32 though.
+ 	    return [check_effective_target_ilp32];
+ 	}
+--- a/libffi/testsuite/lib/target-libpath.exp
++++ b/libffi/testsuite/lib/target-libpath.exp
+@@ -175,7 +175,7 @@
+   } else {
+     setenv DYLD_LIBRARY_PATH "$ld_library_path"
+   }
+-  if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
++  if { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
+     if { $orig_path_saved } {
+       setenv PATH "$ld_library_path:$orig_path"
+     } else {
+@@ -271,7 +271,7 @@
+ 
+     if { [ istarget *-*-darwin* ] } {
+ 	set shlib_ext "dylib"
+-    } elseif { [ istarget *-*-cygwin* ] || [ istarget *-*-mingw* ] } {
++    } elseif { [ istarget *-*-cygwin* ] || [ istarget *-*-msys* ] || [ istarget *-*-mingw* ] } {
+ 	set shlib_ext "dll"
+     } elseif { [ istarget hppa*-*-hpux* ] } {
+ 	set shlib_ext "sl"
+--- a/libgomp/testsuite/lib/libgomp.exp
++++ b/libgomp/testsuite/lib/libgomp.exp
+@@ -83,7 +83,7 @@
+ 
+     # Many hosts now default to a non-ASCII C locale, however, so
+     # they can set a charset encoding here if they need.
+-    if { [ishost "*-*-cygwin*"] } {
++    if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+       setenv LC_ALL C.ASCII
+       setenv LANG C.ASCII
+     }
+--- a/libstdc++-v3/testsuite/27_io/filesystem/path/concat/94063.cc
++++ b/libstdc++-v3/testsuite/27_io/filesystem/path/concat/94063.cc
+@@ -15,7 +15,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target { *-*-*mingw* || *-*-cygwin } } }
++// { dg-do run { target { *-*-*mingw* || *-*-cygwin || *-*-msys } } }
+ // { dg-require-effective-target c++17 }
+ 
+ #include <filesystem>
+--- a/libstdc++-v3/testsuite/lib/libstdc++.exp
++++ b/libstdc++-v3/testsuite/lib/libstdc++.exp
+@@ -113,7 +113,7 @@
+ 
+     # Many hosts now default to a non-ASCII C locale, however, so
+     # they can set a charset encoding here if they need.
+-    if { [ishost "*-*-cygwin*"] } {
++    if { [ishost "*-*-cygwin*"] || [ishost "*-*-msys*"] } {
+       setenv LC_ALL C.ASCII
+       setenv LANG C.ASCII
+     }
