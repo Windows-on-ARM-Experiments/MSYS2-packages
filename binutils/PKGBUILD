@@ -1,10 +1,12 @@
 # Maintainer: Alexey Pavlov <alexpux@gmail.com>
 
-pkgname=binutils
+_realname=binutils
+_base_ver=2.42
+pkgname=${_realname}
 pkgver=2.42
 pkgrel=1
 pkgdesc="A set of programs to assemble and manipulate binary and object files"
-arch=('i686' 'x86_64')
+arch=('aarch64' 'i686' 'x86_64')
 url="https://www.gnu.org/software/binutils/"
 msys2_references=(
   "cpe: cpe:/a:gnu:binutils"
@@ -13,13 +15,12 @@ license=('GPL')
 depends=('libiconv' 'libintl' 'zlib')
 checkdepends=('dejagnu' 'bc')
 makedepends=('libiconv-devel' 'gettext-devel' 'zlib-devel' 'autotools' 'gcc')
-options=('staticlibs' '!distcc' '!ccache')
-source=(https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.xz{,.sig}
+options=('staticlibs' '!distcc')
+source=("${_realname}"::"git+https://github.com/Windows-on-ARM-Experiments/binutils-woarm64.git#branch=woarm64"
         0050-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch
         0100-binutils-2.37-msys2.patch
         2002-Allow-spaces-in-the-name-of-the-external-preprocesso.patch)
-sha256sums=('f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800'
-            'SKIP'
+sha256sums=('SKIP'
             '4e8ac055df61b1b5d6ae29dc87e1154737c2e87c7b244b44866702cabf1a5d18'
             '78a8fece3e244272bb3c52924ddcdeedc483631236cc71206a7f21b0949f5a49'
             '57478b9971183d430c93701b1d533e3724dab5334bbf44db924777e4a93c1063')
@@ -27,7 +28,7 @@ validpgpkeys=('EAF1C276A747E9ED86210CBAC3126D3B4AE55E93'
               '3A24BC1E8FB409FA9F14371813FCEF89DD9E3C4F')
 
 prepare() {
-  cd "${srcdir}"/binutils-${pkgver}
+  cd "${srcdir}"/${_realname}
   patch -p1 -i "${srcdir}"/0050-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch
   patch -p1 -i "${srcdir}"/0100-binutils-2.37-msys2.patch
 
@@ -42,7 +43,7 @@ prepare() {
 
 build() {
   cd "${srcdir}"/binutils-${CARCH}
-  ../binutils-${pkgver}/configure \
+  ../${_realname}/configure \
     --prefix=/usr \
     --{build,host,target}=${CHOST} \
     --disable-werror \
