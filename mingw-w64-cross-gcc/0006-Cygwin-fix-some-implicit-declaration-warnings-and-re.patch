@@ -11,19 +11,6 @@ Subject: [PATCH 06/13] Cygwin: fix some implicit declaration warnings and
  libiberty/configure    | 18 +++++++++++++++++-
  2 files changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/libiberty/acinclude.m4 b/libiberty/acinclude.m4
-index 6db0e508517..dfa4c6cac10 100644
---- a/libiberty/acinclude.m4
-+++ b/libiberty/acinclude.m4
-@@ -25,6 +25,8 @@ AC_CACHE_CHECK([for working strncmp], ac_cv_func_strncmp_works,
- /* Test by Jim Wilson and Kaveh Ghazi.
-    Check whether strncmp reads past the end of its string parameters. */
- #include <sys/types.h>
-+#include <string.h>
-+#include <stdlib.h>
- 
- #ifdef HAVE_FCNTL_H
- #include <fcntl.h>
 diff --git a/libiberty/configure b/libiberty/configure
 index e4d49732a09..ceb16cf16d9 100755
 --- a/libiberty/configure
@@ -77,15 +64,6 @@ index e4d49732a09..ceb16cf16d9 100755
    --libdir=DIR            object code libraries [EPREFIX/lib]
    --includedir=DIR        C header files [PREFIX/include]
    --oldincludedir=DIR     C header files for non-gcc [/usr/include]
-@@ -7583,6 +7597,8 @@ else
- /* Test by Jim Wilson and Kaveh Ghazi.
-    Check whether strncmp reads past the end of its string parameters. */
- #include <sys/types.h>
-+#include <string.h>
-+#include <stdlib.h>
- 
- #ifdef HAVE_FCNTL_H
- #include <fcntl.h>
 -- 
 2.39.0
 

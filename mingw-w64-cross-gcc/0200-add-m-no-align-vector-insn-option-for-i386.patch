@@ -61,22 +61,20 @@ index 0dbaacb57ed..3b1a644e2b6 100644
 +Target Mask(NO_ALIGN_VECTOR_INSN) Save
 +Uses unaligned over aligned vector instruction memonics
 +
- mpreferred-stack-boundary=
- Target RejectNegative Joined UInteger Var(ix86_preferred_stack_boundary_arg)
- Attempt to keep stack aligned to this power of 2.
-diff --git a/gcc/config/i386/mingw32.h b/gcc/config/i386/mingw32.h
-index baf80400862..2ff2a99e31b 100644
---- a/gcc/config/i386/mingw32.h
-+++ b/gcc/config/i386/mingw32.h
-@@ -30,7 +30,7 @@ along with GCC; see the file COPYING3.  If not see
+ mdaz-ftz
+ Target
+ Set the FTZ and DAZ Flags.
+--- a/gcc/config/mingw/mingw32.h
++++ b/gcc/config/mingw/mingw32.h
+@@ -32,7 +32,7 @@
  #define TARGET_SUBTARGET_DEFAULT \
  	(MASK_80387 | MASK_IEEE_FP | MASK_FLOAT_RETURNS \
  	 | MASK_STACK_PROBE | MASK_ALIGN_DOUBLE \
 -	 | MASK_MS_BITFIELD_LAYOUT)
 +	 | MASK_MS_BITFIELD_LAYOUT | MASK_NO_ALIGN_VECTOR_INSN)
  
- #ifndef TARGET_USING_MCFGTHREAD
- #define TARGET_USING_MCFGTHREAD  0
+ #ifdef TARGET_USING_MCFGTHREAD
+ #define DEFINE_THREAD_MODEL  builtin_define ("__USING_MCFGTHREAD__");
 diff --git a/gcc/config/i386/predicates.md b/gcc/config/i386/predicates.md
 index c4141a96735..0ee5a9054ee 100644
 --- a/gcc/config/i386/predicates.md
@@ -166,8 +164,8 @@ index 076064f97e6..b224b578676 100644
    "@
     movlps\t{%1, %0|%0, %1}
 @@ -13347,6 +13366,20 @@
-   [(set_attr "type" "ssemov")
-    (set_attr "mode" "V2SF,V4SF,V2SF")])
+   DONE;
+ })
  
 +(define_insn "*vec_extractv2df_0_sse_unalign"
 +  [(set (match_operand:DF 0 "nonimmediate_operand" "=m,x,x")
@@ -183,9 +181,9 @@ index 076064f97e6..b224b578676 100644
 +  [(set_attr "type" "ssemov")
 +   (set_attr "mode" "V2SF,V4SF,V2SF")])
 +
- (define_expand "sse2_loadhpd_exp"
-   [(set (match_operand:V2DF 0 "nonimmediate_operand")
- 	(vec_concat:V2DF
+ ;; Avoid combining registers from different units in a single alternative,
+ ;; see comment above inline_secondary_memory_needed function in i386.cc
+ (define_insn "sse2_loadhpd"
 -- 
 2.38.1
 
