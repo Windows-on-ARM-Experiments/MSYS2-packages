@@ -426,18 +426,18 @@ diff -Naur gcc-11.2.0-orig/gcc/testsuite/gcc.dg/tree-ssa/loop-1.c gcc-11.2.0/gcc
 --- gcc-11.2.0-orig/gcc/testsuite/gcc.dg/tree-ssa/loop-1.c	2021-11-29 16:31:48.541158800 +0100
 +++ gcc-11.2.0/gcc/testsuite/gcc.dg/tree-ssa/loop-1.c	2021-11-29 16:49:32.556601800 +0100
 @@ -46,10 +46,10 @@
- /* CRIS and MSP430 keep the address in a register.  */
+ /* MSP430 keeps the address in a register.  */
  /* m68k sometimes puts the address in a register, depending on CPU and PIC.  */
  
--/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* cris-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
-+/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* cris-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* i?86-*-msys* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
+-/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
++/* { dg-final { scan-assembler-times "foo" 5 { xfail hppa*-*-* ia64*-*-* sh*-*-* fido-*-* m68k-*-* i?86-*-mingw* i?86-*-cygwin* i?86-*-msys* x86_64-*-mingw* visium-*-* nvptx*-*-* pdp11*-*-* msp430-*-* amdgcn*-*-* } } } */
  /* { dg-final { scan-assembler-times "foo,%r" 5 { target hppa*-*-* } } } */
  /* { dg-final { scan-assembler-times "= foo"  5 { target ia64*-*-* } } } */
 -/* { dg-final { scan-assembler-times "call\[ \t\]*_foo" 5 { target i?86-*-mingw* i?86-*-cygwin* } } } */
 +/* { dg-final { scan-assembler-times "call\[ \t\]*_foo" 5 { target i?86-*-mingw* i?86-*-cygwin* i?86-*-msys* } } } */
  /* { dg-final { scan-assembler-times "call\[ \t\]*foo" 5 { target x86_64-*-mingw* } } } */
  /* { dg-final { scan-assembler-times "jsr|bsrf|blink\ttr?,r18"  5 { target sh*-*-* } } } */
- /* { dg-final { scan-assembler-times "Jsr \\\$r" 5 { target cris-*-* } } } */
+ /* { dg-final { scan-assembler-times "\[jb\]sr" 5 { target fido-*-* m68k-*-* pdp11-*-* } } } */
 diff -Naur gcc-11.2.0-orig/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c gcc-11.2.0/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c
 --- gcc-11.2.0-orig/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c	2021-11-29 16:31:49.197252300 +0100
 +++ gcc-11.2.0/gcc/testsuite/gcc.dg/tree-ssa/ssa-store-ccp-2.c	2021-11-29 16:43:00.090274000 +0100
@@ -632,8 +632,8 @@ diff -Naur gcc-11.2.0-orig/gcc/testsuite/lib/target-libpath.exp gcc-11.2.0/gcc/t
 --- gcc-11.2.0-orig/gcc/testsuite/lib/target-libpath.exp	2021-11-29 16:31:41.218990500 +0100
 +++ gcc-11.2.0/gcc/testsuite/lib/target-libpath.exp	2021-11-29 16:42:40.206951900 +0100
 @@ -171,7 +171,7 @@
-   } else {
-     setenv DYLD_LIBRARY_PATH "$ld_library_path"
+       }
+     }
    }
 -  if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
 +  if { [istarget *-*-cygwin*] || [istarget *-*-msys*] || [istarget *-*-mingw*] } {
@@ -695,8 +695,8 @@ diff -Naur gcc-11.2.0-orig/gcc/testsuite/lib/target-supports.exp gcc-11.2.0/gcc/
  proc check_effective_target_automatic_stack_alignment  { } {
      # Ordinarily x86 supports automatic stack alignment ...
      if { [istarget i?86*-*-*] || [istarget x86_64-*-*] } then {
--        if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] } {
-+        if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] || [istarget *-*-msys*] } {
+-	if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] } {
++	if { [istarget *-*-mingw*] || [istarget *-*-cygwin*] || [istarget *-*-msys*] } {
  	    # ... except Win64 SEH doesn't.  Succeed for Win32 though.
  	    return [check_effective_target_ilp32];
  	}
@@ -740,7 +740,7 @@ diff -Naur gcc-11.2.0-orig/libstdc++-v3/testsuite/27_io/filesystem/path/concat/9
  // with this library; see the file COPYING3.  If not see
  // <http://www.gnu.org/licenses/>.
  
--// { dg-do run { target { *-*-*mingw* || *-*-cygwin } } }
+-// { dg-do run { target { *-*-*mingw* *-*-cygwin } } }
 +// { dg-do run { target { *-*-*mingw* || *-*-cygwin || *-*-msys } } }
  // { dg-require-effective-target c++17 }
  

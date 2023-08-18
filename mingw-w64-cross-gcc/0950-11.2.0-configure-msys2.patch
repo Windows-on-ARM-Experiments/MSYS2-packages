@@ -389,14 +389,14 @@ diff -Naur gcc-13.2.0-orig/contrib/config-list.mk gcc-13.2.0/contrib/config-list
 --- gcc-13.2.0-orig/contrib/config-list.mk	2023-09-12 10:00:33.713123900 +0100
 +++ gcc-13.2.0/contrib/config-list.mk	2023-09-12 10:49:47.289006000 +0100
 @@ -126,7 +126,7 @@
- 		TGT=`echo $@ | awk 'BEGIN { FS = "OPT" }; { print $$1 }'` &&			\
- 		TGT=`$(GCC_SRC_DIR)/config.sub $$TGT` &&					\
- 		case $$TGT in									\
--			*-*-darwin* | *-*-cygwin* | *-*-mingw* | *-*-aix* | bpf-*-*)			\
-+			*-*-darwin* | *-*-cygwin* | *-*-msys* | *-*-mingw* | *-*-aix* | bpf-*-*)			\
- 				ADDITIONAL_LANGUAGES="";					\
+			bpf-*-*)								\
+				ADDITIONAL_LANGUAGES="";					\
+				;;								\
+-			*-*-darwin* | *-*-cygwin* | *-*-mingw* | *-*-aix*)			\
++			*-*-darwin* | *-*-cygwin* | *-*-msys* | *-*-mingw* | *-*-aix*)			\
+ 				ADDITIONAL_LANGUAGES=",fortran";				\
  				;;								\
- 			*)									\
+ 			mmix-*-*)								\
 diff -Naur gcc-13.2.0-orig/fixincludes/configure gcc-13.2.0/fixincludes/configure
 --- gcc-13.2.0-orig/fixincludes/configure	2023-09-12 10:00:29.206505800 +0100
 +++ gcc-13.2.0/fixincludes/configure	2023-09-12 10:49:47.289006000 +0100
@@ -418,19 +418,6 @@ diff -Naur gcc-13.2.0-orig/fixincludes/configure gcc-13.2.0/fixincludes/configur
          gcc_cv_func_mmap_anon=no ;;
       *)
          gcc_cv_func_mmap_anon=yes;;
-diff -Naur gcc-13.2.0-orig/fixincludes/mkfixinc.sh gcc-13.2.0/fixincludes/mkfixinc.sh
---- gcc-13.2.0-orig/fixincludes/mkfixinc.sh	2023-09-12 10:00:29.206505800 +0100
-+++ gcc-13.2.0/fixincludes/mkfixinc.sh	2023-09-12 10:49:47.304627300 +0100
-@@ -12,6 +12,9 @@
- # Check for special fix rules for particular targets
- case $machine in
-     i?86-*-cygwin* | \
-+    x86_64-*-cygwin* | \
-+    i?86-*-msys* | \
-+    x86_64-*-msys* | \
-     i?86-*-mingw32* | \
-     x86_64-*-mingw32* | \
-     powerpc-*-eabisim* | \
 diff -Naur gcc-13.2.0-orig/gcc/ada/Makefile.rtl gcc-13.2.0/gcc/ada/Makefile.rtl
 --- gcc-13.2.0-orig/gcc/ada/Makefile.rtl	2023-09-12 10:00:34.197376700 +0100
 +++ gcc-13.2.0/gcc/ada/Makefile.rtl	2023-09-12 10:49:47.304627300 +0100
@@ -2568,15 +2555,6 @@ diff -Naur gcc-13.2.0-orig/libobjc/configure gcc-13.2.0/libobjc/configure
      # 'host' will be top-level target in the case of a target lib,
      # we must compare to with_cross_host to decide if this is a native
      # or cross-compiler and select where to install dlls appropriately.
-@@ -3436,7 +3436,7 @@
-     # Darwin needs -single_module when linking libobjc
-     extra_ldflags_libobjc='$(lt_host_flags) -Wl,-single_module'
-     ;;
--  *-cygwin*|*-mingw*)
-+  *-cygwin*|*-msys*|*-mingw*)
-     # Tell libtool to build DLLs on Windows
-     extra_ldflags_libobjc='$(lt_host_flags)'
-     ;;
 @@ -3933,7 +3933,7 @@
  enable_win32_dll=yes
  
@@ -2701,8 +2679,8 @@ diff -Naur gcc-13.2.0-orig/libobjc/configure.ac gcc-13.2.0/libobjc/configure.ac
 --- gcc-13.2.0-orig/libobjc/configure.ac	2023-09-12 10:00:20.239835800 +0100
 +++ gcc-13.2.0/libobjc/configure.ac	2023-09-12 10:49:47.476461300 +0100
 @@ -153,7 +153,7 @@
-     # Darwin needs -single_module when linking libobjc
-     extra_ldflags_libobjc='$(lt_host_flags) -Wl,-single_module'
+       extra_ldflags_libobjc="${extra_ldflags_libobjc} -Wl,-rpath,@loader_path"
+     fi
      ;;
 -  *-cygwin*|*-mingw*)
 +  *-cygwin*|*-msys*|*-mingw*)
@@ -3592,7 +3570,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -47464,11 +47481,13 @@
+@@ -38233,11 +38253,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3607,7 +3585,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -47752,11 +47771,13 @@
+@@ -38521,11 +38543,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3622,7 +3600,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -48038,7 +48059,7 @@
+@@ -38807,7 +38831,7 @@ $as_echo "#define HAVE_TLS 1" >>confdefs.h
  
    fi
      ;;
@@ -3631,7 +3609,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
  
    # All these tests are for C++; save the language and the compiler flags.
    # The CXXFLAGS thing is suspicious, but based on similar bits previously
-@@ -48217,11 +48238,13 @@
+@@ -38986,11 +39010,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3646,7 +3624,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -54619,11 +54642,13 @@
+@@ -42428,11 +42454,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3661,7 +3639,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -60770,11 +60795,13 @@
+@@ -45823,11 +45851,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3676,7 +3654,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -60983,11 +61010,13 @@
+@@ -46036,11 +46066,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
