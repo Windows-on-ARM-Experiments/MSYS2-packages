@@ -1,0 +1,33 @@
+--- a/winsup/configure.ac
++++ b/winsup/configure.ac
+@@ -106,11 +106,10 @@ if test "x$with_cross_bootstrap" != "xyes"; then
+     test -n "$MINGW_CXX" || AC_MSG_ERROR([no acceptable MinGW g++ found in \$PATH])
+     AC_CHECK_PROGS(MINGW_CC, ${target_cpu}-w64-mingw32-gcc)
+     test -n "$MINGW_CC" || AC_MSG_ERROR([no acceptable MinGW gcc found in \$PATH])
+ 
+     AC_CHECK_PROGS(MINGW32_CC, i686-w64-mingw32-gcc)
+-    test -n "$MINGW32_CC" || AC_MSG_ERROR([no acceptable mingw32 gcc found in \$PATH])
+     AC_CHECK_PROGS(MINGW64_CC, x86_64-w64-mingw32-gcc)
+-    test -n "$MINGW64_CC" || AC_MSG_ERROR([no acceptable mingw64 gcc found in \$PATH])
++    AC_CHECK_PROGS(MINGWARM64_CC, aarch64-w64-mingw32-gcc)
+ fi
+ AM_CONDITIONAL(CROSS_BOOTSTRAP, [test "x$with_cross_bootstrap" != "xyes"])
+ 
+--- a/winsup/cygwin/nlsfuncs.cc
++++ b/winsup/cygwin/nlsfuncs.cc
+@@ -19,8 +19,6 @@
+ #include "lc_msg.h"
+ #include "lc_era.h"
+ 
+-#pragma GCC diagnostic ignored "-Wuse-after-free"
+-
+ #define _LC(x)	&lc_##x##_ptr,lc_##x##_end-lc_##x##_ptr
+ 
+ #define getlocaleinfo(category,type) \
+@@ -1613,5 +1613,3 @@ initial_setlocale ()
+   if (ret)
+     internal_setlocale ();
+ }
+-
+-#pragma GCC diagnostic pop
+\ No newline at end of file
