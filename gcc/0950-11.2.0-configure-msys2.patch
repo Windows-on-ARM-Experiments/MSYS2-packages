@@ -125,6 +125,16 @@ diff -Naur gcc-13.2.0-orig/config/tcl.m4 gcc-13.2.0/config/tcl.m4
 diff -Naur gcc-13.2.0-orig/config.guess gcc-13.2.0/config.guess
 --- gcc-13.2.0-orig/config.guess	2023-09-12 10:00:33.806843200 +0100
 +++ gcc-13.2.0/config.guess	2023-09-12 10:49:47.273384300 +0100
+@@ -884,6 +884,9 @@
+     i*:CYGWIN*:*)
+ 	echo "$UNAME_MACHINE"-pc-cygwin
+ 	exit ;;
++    i*:MSYS*:*)
++	echo "$UNAME_MACHINE"-unknown-msys
++	exit ;;
+     *:MINGW64*:*)
+ 	echo "$UNAME_MACHINE"-pc-mingw64
+ 	exit ;;
 @@ -914,6 +914,9 @@
      amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
  	echo x86_64-pc-cygwin
@@ -389,14 +399,14 @@ diff -Naur gcc-13.2.0-orig/contrib/config-list.mk gcc-13.2.0/contrib/config-list
 --- gcc-13.2.0-orig/contrib/config-list.mk	2023-09-12 10:00:33.713123900 +0100
 +++ gcc-13.2.0/contrib/config-list.mk	2023-09-12 10:49:47.289006000 +0100
 @@ -126,7 +126,7 @@
- 		TGT=`echo $@ | awk 'BEGIN { FS = "OPT" }; { print $$1 }'` &&			\
- 		TGT=`$(GCC_SRC_DIR)/config.sub $$TGT` &&					\
- 		case $$TGT in									\
--			*-*-darwin* | *-*-cygwin* | *-*-mingw* | *-*-aix* | bpf-*-*)			\
-+			*-*-darwin* | *-*-cygwin* | *-*-msys* | *-*-mingw* | *-*-aix* | bpf-*-*)			\
+ 			bpf-*-*)								\
  				ADDITIONAL_LANGUAGES="";					\
  				;;								\
- 			*)									\
+-			*-*-darwin* | *-*-cygwin* | *-*-mingw* | *-*-aix*)			\
++			*-*-darwin* | *-*-cygwin* | *-*-msys* | *-*-mingw* | *-*-aix*)			\
+ 				ADDITIONAL_LANGUAGES=",fortran";				\
+ 				;;								\
+ 			mmix-*-*)								\
 diff -Naur gcc-13.2.0-orig/fixincludes/configure gcc-13.2.0/fixincludes/configure
 --- gcc-13.2.0-orig/fixincludes/configure	2023-09-12 10:00:29.206505800 +0100
 +++ gcc-13.2.0/fixincludes/configure	2023-09-12 10:49:47.289006000 +0100
@@ -430,7 +440,7 @@ diff -Naur gcc-13.2.0-orig/fixincludes/mkfixinc.sh gcc-13.2.0/fixincludes/mkfixi
 +    x86_64-*-msys* | \
      i?86-*-mingw32* | \
      x86_64-*-mingw32* | \
-     powerpc-*-eabisim* | \
+     aarch64-*-mingw32* | \
 diff -Naur gcc-13.2.0-orig/gcc/ada/Makefile.rtl gcc-13.2.0/gcc/ada/Makefile.rtl
 --- gcc-13.2.0-orig/gcc/ada/Makefile.rtl	2023-09-12 10:00:34.197376700 +0100
 +++ gcc-13.2.0/gcc/ada/Makefile.rtl	2023-09-12 10:49:47.304627300 +0100
@@ -2568,15 +2578,6 @@ diff -Naur gcc-13.2.0-orig/libobjc/configure gcc-13.2.0/libobjc/configure
      # 'host' will be top-level target in the case of a target lib,
      # we must compare to with_cross_host to decide if this is a native
      # or cross-compiler and select where to install dlls appropriately.
-@@ -3436,7 +3436,7 @@
-     # Darwin needs -single_module when linking libobjc
-     extra_ldflags_libobjc='$(lt_host_flags) -Wl,-single_module'
-     ;;
--  *-cygwin*|*-mingw*)
-+  *-cygwin*|*-msys*|*-mingw*)
-     # Tell libtool to build DLLs on Windows
-     extra_ldflags_libobjc='$(lt_host_flags)'
-     ;;
 @@ -3933,7 +3933,7 @@
  enable_win32_dll=yes
  
@@ -2701,8 +2702,8 @@ diff -Naur gcc-13.2.0-orig/libobjc/configure.ac gcc-13.2.0/libobjc/configure.ac
 --- gcc-13.2.0-orig/libobjc/configure.ac	2023-09-12 10:00:20.239835800 +0100
 +++ gcc-13.2.0/libobjc/configure.ac	2023-09-12 10:49:47.476461300 +0100
 @@ -153,7 +153,7 @@
-     # Darwin needs -single_module when linking libobjc
-     extra_ldflags_libobjc='$(lt_host_flags) -Wl,-single_module'
+       extra_ldflags_libobjc="${extra_ldflags_libobjc} -Wl,-rpath,@loader_path"
+     fi
      ;;
 -  *-cygwin*|*-mingw*)
 +  *-cygwin*|*-msys*|*-mingw*)
@@ -3353,7 +3354,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/acinclude.m4 gcc-13.2.0/libstdc++-v3/aci
 diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/configure
 --- gcc-13.2.0-orig/libstdc++-v3/configure	2023-09-12 10:00:19.630629200 +0100
 +++ gcc-13.2.0/libstdc++-v3/configure	2023-09-12 10:49:47.554570300 +0100
-@@ -6543,7 +6543,7 @@
+@@ -6556,7 +6556,7 @@ else
      lt_cv_sys_max_cmd_len=-1;
      ;;
  
@@ -3362,7 +3363,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      # On Win9x/ME, this test blows up -- it succeeds, but takes
      # about 5 minutes as the teststring grows exponentially.
      # Worse, since 9x/ME are not pre-emptively multitasking,
-@@ -6885,7 +6885,7 @@
+@@ -6898,7 +6898,7 @@ bsdi[45]*)
    lt_cv_file_magic_test_file=/shlib/libc.so
    ;;
  
@@ -3371,7 +3372,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
    # func_win32_libid is a shell function defined in ltmain.sh
    lt_cv_deplibs_check_method='file_magic ^x86 archive import|^x86 DLL'
    lt_cv_file_magic_cmd='func_win32_libid'
-@@ -7470,7 +7470,7 @@
+@@ -7514,7 +7514,7 @@ case $host_os in
  aix*)
    symcode='[BCDT]'
    ;;
@@ -3380,7 +3381,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
    symcode='[ABCDGISTW]'
    ;;
  hpux*)
-@@ -9221,7 +9221,7 @@
+@@ -9265,7 +9265,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
        # PIC is the default for these OSes.
        ;;
  
@@ -3389,7 +3390,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        # Although the cygwin gcc ignores -fPIC, still need this for old-style
-@@ -9303,7 +9303,7 @@
+@@ -9347,7 +9347,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
        fi
        ;;
  
@@ -3398,7 +3399,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        lt_prog_compiler_pic='-DDLL_EXPORT'
-@@ -9765,7 +9765,7 @@
+@@ -9809,7 +9809,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
    extract_expsyms_cmds=
  
    case $host_os in
@@ -3407,7 +3408,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      # FIXME: the MSVC++ port hasn't been tested in a loooong time
      # When not using gcc, we currently assume that we are using
      # Microsoft Visual C++.
-@@ -9880,7 +9880,7 @@
+@@ -9924,7 +9924,7 @@ _LT_EOF
        fi
        ;;
  
@@ -3416,7 +3417,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
        # _LT_TAGVAR(hardcode_libdir_flag_spec, ) is actually meaningless,
        # as there is no search path for DLLs.
        hardcode_libdir_flag_spec='-L$libdir'
-@@ -10317,7 +10317,7 @@
+@@ -10361,7 +10361,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
        export_dynamic_flag_spec=-rdynamic
        ;;
  
@@ -3425,7 +3426,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
        # When not using gcc, we currently assume that we are using
        # Microsoft Visual C++.
        # hardcode_libdir_flag_spec is actually meaningless, as there is
-@@ -11221,14 +11221,14 @@
+@@ -11312,14 +11312,14 @@ bsdi[45]*)
    # libtool to hard-code these into programs
    ;;
  
@@ -3442,7 +3443,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -11252,6 +11252,12 @@
+@@ -11341,6 +11341,12 @@ cygwin* | mingw* | pw32* | cegcc*)
  
        sys_lib_search_path_spec="$sys_lib_search_path_spec /usr/lib/w32api"
        ;;
@@ -3455,7 +3456,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      mingw* | cegcc*)
        # MinGW DLLs use traditional 'lib' prefix
        soname_spec='${libname}`echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
-@@ -11905,7 +11911,7 @@
+@@ -11996,7 +12002,7 @@ else
      lt_cv_dlopen_libs=
      ;;
  
@@ -3464,7 +3465,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      lt_cv_dlopen="dlopen"
      lt_cv_dlopen_libs=
      ;;
-@@ -13148,7 +13154,7 @@
+@@ -13239,7 +13245,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
          esac
          ;;
  
@@ -3473,7 +3474,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
          # _LT_TAGVAR(hardcode_libdir_flag_spec, CXX) is actually meaningless,
          # as there is no search path for DLLs.
          hardcode_libdir_flag_spec_CXX='-L$libdir'
-@@ -14118,7 +14124,7 @@
+@@ -14260,7 +14266,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
      beos* | irix5* | irix6* | nonstopux* | osf3* | osf4* | osf5*)
        # PIC is the default for these OSes.
        ;;
@@ -3482,7 +3483,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        # Although the cygwin gcc ignores -fPIC, still need this for old-style
-@@ -14658,7 +14664,7 @@
+@@ -14800,7 +14806,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
    pw32*)
      export_symbols_cmds_CXX="$ltdll_cmds"
    ;;
@@ -3491,7 +3492,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      export_symbols_cmds_CXX='$NM $libobjs $convenience | $global_symbol_pipe | $SED -e '\''/^[BCDGRS][ ]/s/.*[ ]\([^ ]*\)/\1 DATA/;/^.*[ ]__nm__/s/^.*[ ]__nm__\([^ ]*\)[ ][^ ]*/\1 DATA/;/^I[ ]/d;/^[AITW][ ]/s/.* //'\'' | sort | uniq > $export_symbols'
    ;;
    *)
-@@ -14922,14 +14928,14 @@
+@@ -15064,14 +15070,14 @@ bsdi[45]*)
    # libtool to hard-code these into programs
    ;;
  
@@ -3508,7 +3509,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -14952,6 +14958,11 @@
+@@ -15094,6 +15099,11 @@ cygwin* | mingw* | pw32* | cegcc*)
        soname_spec='`echo ${libname} | sed -e 's/^lib/cyg/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
  
        ;;
@@ -3520,7 +3521,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      mingw* | cegcc*)
        # MinGW DLLs use traditional 'lib' prefix
        soname_spec='${libname}`echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
-@@ -15574,7 +15585,7 @@
+@@ -15716,7 +15727,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
  
  
  case $host in
@@ -3529,7 +3530,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      # 'host' will be top-level target in the case of a target lib,
      # we must compare to with_cross_host to decide if this is a native
      # or cross-compiler and select where to install dlls appropriately.
-@@ -18827,7 +18838,7 @@
+@@ -19554,7 +19565,7 @@ $as_echo "$enable_vtable_verify" >&6; }
    vtv_cygmin=no
    if test $enable_vtable_verify = yes; then
      case ${target_os} in
@@ -3547,7 +3548,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
          ac_has_clock_monotonic=yes
          ac_has_clock_realtime=yes
          ac_has_nanosleep=yes
-@@ -22341,11 +22352,13 @@
+@@ -23022,11 +23036,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3562,7 +3563,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -29595,11 +29608,13 @@
+@@ -28836,11 +28852,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3577,7 +3578,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -35530,11 +35545,13 @@
+@@ -32015,11 +32033,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3592,7 +3593,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -47464,11 +47481,13 @@
+@@ -38233,11 +38253,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3607,7 +3608,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -47752,11 +47771,13 @@
+@@ -38521,11 +38543,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3622,7 +3623,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -48038,7 +48059,7 @@
+@@ -38807,7 +38831,7 @@ $as_echo "#define HAVE_TLS 1" >>confdefs.h
  
    fi
      ;;
@@ -3631,7 +3632,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
  
    # All these tests are for C++; save the language and the compiler flags.
    # The CXXFLAGS thing is suspicious, but based on similar bits previously
-@@ -48217,11 +48238,13 @@
+@@ -38986,11 +39010,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3646,7 +3647,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -54619,11 +54642,13 @@
+@@ -42428,11 +42454,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3661,7 +3662,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -60770,11 +60795,13 @@
+@@ -45823,11 +45851,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3676,7 +3677,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -60983,11 +61010,13 @@
+@@ -46036,11 +46066,13 @@ $as_echo "$ac_gcsections" >&6; }
    # Note this is only for shared objects.
    ac_ld_relro=no
    if test x"$with_gnu_ld" = x"yes"; then
@@ -3691,7 +3692,7 @@ diff -Naur gcc-13.2.0-orig/libstdc++-v3/configure gcc-13.2.0/libstdc++-v3/config
      *-*-mingw*)
       ;;
      *)
-@@ -69710,7 +69739,7 @@
+@@ -52008,7 +52040,7 @@ done
    if $GLIBCXX_IS_NATIVE && test $is_hosted = yes &&
       test $enable_symvers != no; then
      case "$host" in
