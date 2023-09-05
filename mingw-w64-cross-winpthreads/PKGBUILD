@@ -1,15 +1,16 @@
 # Maintainer: Alexey Pavlov <alexpux@gmail.com>
 
 _realname=winpthreads
+_base_ver=12.0.0
 _mingw_suff=mingw-w64-cross
 pkgname="${_mingw_suff}-${_realname}"
 provides=("${_mingw_suff}-${_realname}-git")
 conflicts=("${_mingw_suff}-${_realname}-git")
 replaces=("${_mingw_suff}-${_realname}-git")
-pkgver=12.0.0.r0.g819a6ec2e
+pkgver=12.0.0
 pkgrel=1
 pkgdesc="MinGW-w64 winpthreads library for cross-compiler"
-arch=('i686' 'x86_64')
+arch=('aarch64' 'i686' 'x86_64')
 url="https://mingw-w64.sourceforge.io/"
 license=('custom')
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
@@ -18,35 +19,58 @@ depends=("${_mingw_suff}-crt")
 optdepends=()
 backup=()
 options=('!strip' '!buildflags' 'staticlibs' '!emptydirs' '!buildflags')
-_commit='819a6ec2ea87c19814b287e21d65e0dc7f05abba'
-source=("mingw-w64"::"git+https://git.code.sf.net/p/mingw-w64/mingw-w64#commit=$_commit"
-        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch)
-sha256sums=('41878f44fe3b6c347fc99ab8a90d384f61bd3ae25cfb2a62a7e24d4f0d14f720'
-            '2e779bcc60a1422b23e0cfdb5c0f6851f2382592bb4675d08a6bdef78d5e5c10')
+source=("mingw-w64"::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#branch=woarm64"
+        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+        9999-workarounds.patch)
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP')
 msys2_references=(
   'archlinux: mingw-w64-winpthreads'
-  'cpe: cpe:/a:mingw-w64:mingw-w64'
 )
 
-_targets="x86_64-w64-mingw32ucrt i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="aarch64-w64-mingw32 x86_64-w64-mingw32"
+#_targets="aarch64-w64-mingw32 x86_64-w64-mingw32ucrt i686-w64-mingw32 x86_64-w64-mingw32"
+
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -F0 --verbose -i ${srcdir}/${_fname}
+  done
+}
 
 pkgver() {
   cd "$srcdir/mingw-w64"
 
-  git describe --long ${_commit} | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//g'
+  printf "%s.r%s.%s" "${_base_ver}" "$(git rev-list --count HEAD)" "$(git rev-parse --short=12 HEAD)"
 }
 
 prepare() {
   cd "$srcdir/mingw-w64"
-  git apply "${srcdir}"/0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+
+  # Remove files created by patches.
+  rm -f mingw-w64-libraries/winpthreads/src/libgcc/dll_frame_info.c
+
+  apply_patch_with_msg \
+    0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch \
+    9999-workarounds.patch
+
   cd "${srcdir}"/mingw-w64/mingw-w64-libraries/winpthreads
+
   autoreconf -vfi
+
+  for _target in ${_targets}; do
+    mkdir -p ${srcdir}/build-${_target}
+  done
 }
 
 build() {
   for _target in ${_targets}; do
-    mkdir -p ${srcdir}/winpthreads-build-${_target} && cd ${srcdir}/winpthreads-build-${_target}
+    cd ${srcdir}/build-${_target}
+
     unset CC
+
     ${srcdir}/mingw-w64/mingw-w64-libraries/winpthreads/configure \
       --prefix=/opt/${_target} \
       --build=${CHOST} \
@@ -59,7 +83,7 @@ build() {
 
 package() {
   for _target in ${_targets}; do
-    cd ${srcdir}/winpthreads-build-${_target}
+    cd ${srcdir}/build-${_target}
     make DESTDIR=${pkgdir} install
   done
 }
