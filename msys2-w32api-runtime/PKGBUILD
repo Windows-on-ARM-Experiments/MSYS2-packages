@@ -1,64 +1,99 @@
 # Maintainer: Alexey Pavlov <alexpux@gmail.com>
 
+_base_ver=12.0.0
 pkgname="msys2-w32api-runtime"
-pkgver=12.0.0.r0.g819a6ec2e
+pkgver=12.0.0.r6811.a38630963d00
 pkgrel=1
 pkgdesc="Win32 API import libs for MSYS2 toolchain"
-arch=('i686' 'x86_64')
+arch=('aarch64' 'i686' 'x86_64')
 url="https://mingw-w64.sourceforge.io/"
 license=('custom')
 depends=('msys2-w32api-headers')
 options=('staticlibs' '!strip' '!buildflags')
 makedepends=('git' 'mingw-w64-cross-gcc' 'autotools')
-_commit='819a6ec2ea87c19814b287e21d65e0dc7f05abba'
-source=('mingw-w64'::"git+https://git.code.sf.net/p/mingw-w64/mingw-w64#commit=$_commit")
-sha256sums=('41878f44fe3b6c347fc99ab8a90d384f61bd3ae25cfb2a62a7e24d4f0d14f720')
+source=('mingw-w64'::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#branch=woarm64"
+        9999-workarounds.patch)
+sha256sums=('SKIP'
+            'SKIP')
 msys2_references=(
   'cygwin: w32api-runtime'
   'cpe: cpe:/a:mingw-w64:mingw-w64'
 )
 
+_targets="aarch64-w64-mingw32 x86_64-w64-mingw32"
+#_targets="aarch64-w64-mingw32 i686-w64-mingw32 x86_64-w64-mingw32"
+
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -F0 --verbose -i ${srcdir}/${_fname}
+  done
+}
+
 pkgver() {
-  cd "${srcdir}/mingw-w64"
-  git describe --long ${_commit} | sed 's/\([^-]*-g\)/r\1/;s/-/./g;s/^v//g'
+  cd ${srcdir}/mingw-w64
+  printf "%s.r%s.%s" "${_base_ver}" "$(git rev-list --count HEAD)" "$(git rev-parse --short=12 HEAD)"
 }
 
 prepare() {
   cd ${srcdir}/mingw-w64
+
+  apply_patch_with_msg \
+    9999-workarounds.patch
+
+  for _target in ${_targets}; do
+    mkdir -p ${srcdir}/build-${_target}
+  done
 }
 
 build() {
-  cd ${srcdir}/mingw-w64/mingw-w64-crt
+  for _target in ${_targets}; do
+    msg "Building ${_target} ${pkgname}"
 
-  local _libs=
-  case ${CARCH} in
-    i686)
-      _libs="--enable-lib32 --disable-lib64"
-    ;;
-    x86_64)
-      _libs="--enable-lib64 --disable-lib32"
-    ;;
-  esac
+    case ${_target} in
+      i686*)
+        _crt_configure_args="--enable-lib32 --disable-lib64"
+      ;;
+      x86_64*)
+        _crt_configure_args="--enable-lib64 --disable-lib32"
+      ;;
+      aarch64*)
+        _crt_configure_args="--disable-lib32 --disable-lib64 --disable-libarm32 --enable-libarm64"
+      ;;
+    esac
 
-  unset CC CXX
+    cd ${srcdir}/build-${_target}
 
-  ./configure \
-  --prefix=/crt \
-  --build=${CHOST} \
-  --host=${CARCH}-w64-mingw32 \
-  --enable-w32api \
-  --disable-dependency-tracking \
-  ${_libs} \
-  CFLAGS='-I/usr/include/w32api' \
-  CXXFLAGS='-I/usr/include/w32api' \
-  CPPFLAGS='-I/usr/include/w32api'
+    prefix=/usr
+    if [[ ${_target} != ${CARCH}* ]]; then
+      prefix=/usr/${_target}
+    fi
 
-  make
+    # NOTE: msys2-runtime-devel package needs to be uninstalled as its headers are clashing
+    # with the ones provided by msys2-w32api-headers during the build.
+    unset CC CXX
+
+    ${srcdir}/mingw-w64/mingw-w64-crt/configure \
+      --prefix=${prefix} \
+      --build=${CHOST} \
+      --host=${_target} \
+      --target=${_target} \
+      --enable-w32api \
+      --disable-dependency-tracking \
+      ${_crt_configure_args} \
+      CFLAGS='-I/usr/include/w32api' \
+      CXXFLAGS='-I/usr/include/w32api' \
+      CPPFLAGS='-I/usr/include/w32api'
+    make
+  done
 }
 
 package() {
-  cd ${srcdir}/mingw-w64/mingw-w64-crt
+  for _target in ${_targets}; do
+    msg "Installing ${_target} ${pkgname}"
 
-  make DESTDIR=${pkgdir} install
-  mv ${pkgdir}/crt ${pkgdir}/usr
+    cd ${srcdir}/build-${_target}
+    make DESTDIR=${pkgdir} install
+  done
 }
