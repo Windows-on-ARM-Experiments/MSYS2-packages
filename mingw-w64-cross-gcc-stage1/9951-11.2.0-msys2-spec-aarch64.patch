@@ -1,0 +1,191 @@
+--- a/gcc/config.build
++++ b/gcc/config.build
+@@ -53,11 +53,19 @@ case $build in
+   hppa*64*-*-hpux11* )
+     build_install_headers_dir=install-headers-cpio
+     ;;
++  aarch64-*-cygwin* )
++    build_xm_file=i386/xm-cygwin.h
++    build_exeext=.exe
++    ;;
+   i[34567]86-*-cygwin* | x86_64-*-cygwin* )
+     build_xm_file=i386/xm-cygwin.h
+     build_exeext=.exe
+     ;;
++  aarch64-*-msys* )
++    build_xm_file=i386/xm-cygwin.h
++    build_exeext=.exe
++    ;;
+   i[34567]86-*-msys* | x86_64-*-msys* )
+     build_xm_file=i386/xm-cygwin.h
+     build_exeext=.exe
+     ;;
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -1269,6 +1269,44 @@ aarch64*-*-gnu*)
+         tmake_file="${tmake_file} aarch64/t-aarch64"
+         tm_defines="${tm_defines}  TARGET_DEFAULT_ASYNC_UNWIND_TABLES=1"
+ 	;;
++aarch64*-*-cygwin*)
++	need_64bit_isa=yes
++	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h aarch64/cygming.h i386/cygwin.h i386/cygwin-w64.h i386/cygwin-stdint.h"
++	xm_file=i386/xm-cygwin.h
++	tmake_file="${tmake_file} mingw/t-cygming t-slibgcc"
++	target_gtfiles="$target_gtfiles \$(srcdir)/config/aarch64/winnt.cc"
++	extra_options="${extra_options} mingw/cygming.opt i386/cygwin.opt"
++	extra_objs="${extra_objs} winnt.o winnt-stubs.o"
++	c_target_objs="${c_target_objs} msformat-c.o"
++	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
++	d_target_objs="${d_target_objs} cygwin-d.o"
++	target_has_targetdm="yes"
++	if test x$enable_threads = xyes; then
++		thread_file='posix'
++	fi
++	default_use_cxa_atexit=yes
++	use_gcc_stdint=wrap
++	tm_defines="${tm_defines} TARGET_CYGWIN64=1"
++	;;
++aarch64*-*-msys*)
++	need_64bit_isa=yes
++	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h aarch64/cygming.h i386/msys.h i386/msys-w64.h i386/cygwin-stdint.h"
++	xm_file=i386/xm-cygwin.h
++	tmake_file="${tmake_file} mingw/t-cygming t-slibgcc"
++	target_gtfiles="$target_gtfiles \$(srcdir)/config/aarch64/winnt.cc"
++	extra_options="${extra_options} mingw/cygming.opt mingw/cygwin.opt"
++	extra_objs="${extra_objs} winnt.o winnt-stubs.o"
++	c_target_objs="${c_target_objs} msformat-c.o"
++	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
++	d_target_objs="${d_target_objs} cygwin-d.o"
++	target_has_targetdm="yes"
++	if test x$enable_threads = xyes; then
++		thread_file='posix'
++	fi
++	default_use_cxa_atexit=yes
++	use_gcc_stdint=wrap
++	tm_defines="${tm_defines} TARGET_CYGWIN64=1"
++	;;
+ aarch64-*-mingw*)
+ 	tm_file="${tm_file} aarch64/aarch64-abi-ms.h"
+ 	tm_file="${tm_file} aarch64/aarch64-coff.h"
+@@ -5704,11 +5774,11 @@ case ${target} in
+ 		;;
+ 	i[34567]86-*-solaris2* | x86_64-*-solaris2*)
+ 		;;
+-	i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++	i[34567]86-*-cygwin* | x86_64-*-cygwin* | aarch64-*-cygwin*)
+ 		;;
+-	i[34567]86-*-msys* | x86_64-*-msys*)
++	i[34567]86-*-msys* | x86_64-*-msys* | aarch64-*-msys*)
+ 		;;
+-	i[34567]86-*-mingw* | x86_64-*-mingw*)
++	i[34567]86-*-mingw* | x86_64-*-mingw* | aarch64-*-mingw*)
+ 		;;
+ 	i[34567]86-*-dragonfly* | x86_64-*-dragonfly*)
+ 		;;
+--- a/gcc/config.host
++++ b/gcc/config.host
+@@ -223,6 +223,13 @@ case ${host} in
+         ;;
+     esac
+     ;;
++  aarch64-*-cygwin*)
++    host_xm_file=i386/xm-cygwin.h
++    out_host_hook_obj=host-cygwin.o
++    host_xmake_file="${host_xmake_file} i386/x-cygwin"
++    host_exeext=.exe
++    host_lto_plugin_soname=cyglto_plugin.dll
++    ;;
+   i[34567]86-*-cygwin* | x86_64-*-cygwin*)
+     host_xm_file=i386/xm-cygwin.h
+     out_host_hook_obj=host-cygwin.o
+@@ -230,6 +237,13 @@ case ${host} in
+     host_exeext=.exe
+     host_lto_plugin_soname=cyglto_plugin.dll
+     ;;
++  aarch64-*-msys*)
++    host_xm_file=i386/xm-cygwin.h
++    out_host_hook_obj=host-cygwin.o
++    host_xmake_file="${host_xmake_file} i386/x-cygwin"
++    host_exeext=.exe
++    host_lto_plugin_soname=msys-lto_plugin.dll
++    ;;
+   i[34567]86-*-msys* | x86_64-*-msys*)
+     host_xm_file=i386/xm-cygwin.h
+     out_host_hook_obj=host-cygwin.o
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -374,12 +374,21 @@ case ${host} in
+   *-*-solaris2*)
+   enable_execute_stack=enable-execute-stack-mprotect.c
+   ;;
++aarch64-*-mingw*)
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
++  ;;
+ i[34567]86-*-mingw* | x86_64-*-mingw*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
++aarch64-*-cygwin*)
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
++  ;;
+ i[34567]86-*-cygwin* | x86_64-*-cygwin*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
++aarch64-*-msys*)
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
++  ;;
+ i[34567]86-*-msys* | x86_64-*-msys*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+@@ -432,6 +444,52 @@ aarch64*-*-vxworks7*)
+ 	tmake_file="${tmake_file} ${cpu_type}/t-softfp t-softfp t-crtfm"
+ 	tmake_file="${tmake_file} t-dfprules"
+ 	;;
++aarch64-*-cygwin*)
++	extra_parts="crtbegin.o crtbeginS.o crtend.o crtfastmath.o"
++	if test x$enable_vtable_verify = xyes; then
++		extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
++	fi
++	# This has to match the logic for DWARF2_UNWIND_INFO in gcc/config/aarch64/cygming.h
++	if test x$ac_cv_sjlj_exceptions = xyes; then
++		tmake_eh_file="i386/t-sjlj-eh"
++	elif test "${host_address}" = 32; then
++	        # biarch -m32 with --disable-sjlj-exceptions
++	     	tmake_eh_file="i386/t-dw2-eh"
++	else
++		tmake_eh_file="i386/t-seh-eh"
++	fi
++	# Shared libgcc DLL install dir depends on cross/native build.
++	if test x${build} = x${host} ; then
++		tmake_dlldir_file="i386/t-dlldir"
++	else
++		tmake_dlldir_file="i386/t-dlldir-x"
++	fi
++	# FIXME - dj - t-chkstk used to be in here, need a 64-bit version of that
++	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_dlldir_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-cygwin t-crtfm t-dfprules i386/t-chkstk"
++	;;
++aarch64-*-msys*)
++	extra_parts="crtbegin.o crtbeginS.o crtend.o crtfastmath.o"
++	if test x$enable_vtable_verify = xyes; then
++		extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
++	fi
++	# This has to match the logic for DWARF2_UNWIND_INFO in gcc/config/aarch64/cygming.h
++	if test x$ac_cv_sjlj_exceptions = xyes; then
++		tmake_eh_file="i386/t-sjlj-eh"
++	elif test "${host_address}" = 32; then
++	        # biarch -m32 with --disable-sjlj-exceptions
++	     	tmake_eh_file="i386/t-dw2-eh"
++	else
++		tmake_eh_file="i386/t-seh-eh"
++	fi
++	# Shared libgcc DLL install dir depends on cross/native build.
++	if test x${build} = x${host} ; then
++		tmake_dlldir_file="i386/t-dlldir"
++	else
++		tmake_dlldir_file="i386/t-dlldir-x"
++	fi
++	# FIXME - dj - t-chkstk used to be in here, need a 64-bit version of that
++	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_dlldir_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-msys t-crtfm t-dfprules i386/t-chkstk"
++	;;
+ aarch64-*-mingw*)
+ 	case ${target_thread_file} in
+ 	  win32)
