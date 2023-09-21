@@ -1,0 +1,82 @@
+--- a/config/gcc-plugin.m4
++++ b/config/gcc-plugin.m4
+@@ -108,7 +108,7 @@ AC_DEFUN([GCC_ENABLE_PLUGINS],
+      esac
+      AC_MSG_CHECKING([for -fPIC -shared])
+      AC_TRY_LINK(
+-       [extern int X;],[return X == 0;],
++       [int X;],[return X == 0;],
+        [AC_MSG_RESULT([yes]); have_pic_shared=yes],
+        [AC_MSG_RESULT([no]); have_pic_shared=no])
+      if test x"$have_pic_shared" != x"yes" -o x"$ac_cv_search_dlopen" = x"no"; then
+--- a/gcc/configure
++++ b/gcc/configure
+@@ -34069,8 +34083,8 @@ $as_echo_n "checking for -rdynamic... " >&6; }
+ 	   plugin_rdynamic=yes
+ 	   pluginlibs="-rdynamic"
+ 	 else
+-	   plugin_rdynamic=no
+-	   enable_plugin=no
++	   plugin_rdynamic=yes
++	   enable_plugin=yes
+ 	 fi
+ 	 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $plugin_rdynamic" >&5
+ $as_echo "$plugin_rdynamic" >&6; }
+@@ -34165,7 +34179,7 @@ fi
+ $as_echo_n "checking for -fPIC -shared... " >&6; }
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+-extern int X;
++int X;
+ int
+ main ()
+ {
+--- a/gcc/config/aarch64/aarch64-coff.h
++++ b/gcc/config/aarch64/aarch64-coff.h
+@@ -81,12 +81,6 @@
+ #define ASM_OUTPUT_TYPE_DIRECTIVE(STREAM, NAME, TYPE)
+ #define ASM_DECLARE_FUNCTION_SIZE(FILE, FNAME, DECL)
+ 
+-#undef TARGET_ASM_CONSTRUCTOR
+-#define TARGET_ASM_CONSTRUCTOR aarch64_elf_asm_constructor
+-
+-#undef TARGET_ASM_DESTRUCTOR
+-#define TARGET_ASM_DESTRUCTOR aarch64_elf_asm_destructor
+-
+ #define TEXT_SECTION_ASM_OP	"\t.text"
+ #define DATA_SECTION_ASM_OP	"\t.data"
+ #define BSS_SECTION_ASM_OP	"\t.bss"
+@@ -99,11 +93,6 @@
+ #undef SUPPORTS_INIT_PRIORITY
+ #define SUPPORTS_INIT_PRIORITY 0
+ 
+-#undef CTORS_SECTION_ASM_OP
+-#define CTORS_SECTION_ASM_OP "\t.section\t.init_array,\"aw\""
+-#undef DTORS_SECTION_ASM_OP
+-#define DTORS_SECTION_ASM_OP "\t.section\t.fini_array,\"aw\""
+-
+ // #undef STACK_CHECK_STATIC_BUILTIN
+ // #define STACK_CHECK_STATIC_BUILTIN 1
+ 
+--- a/libcc1/configure
++++ b/libcc1/configure
+@@ -15248,8 +15259,8 @@ $as_echo_n "checking for -rdynamic... " >&6; }
+ 	   plugin_rdynamic=yes
+ 	   pluginlibs="-rdynamic"
+ 	 else
+-	   plugin_rdynamic=no
+-	   enable_plugin=no
++	   plugin_rdynamic=yes
++	   enable_plugin=yes
+ 	 fi
+ 	 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $plugin_rdynamic" >&5
+ $as_echo "$plugin_rdynamic" >&6; }
+@@ -15344,7 +15355,7 @@ fi
+ $as_echo_n "checking for -fPIC -shared... " >&6; }
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+-extern int X;
++int X;
+ int
+ main ()
+ {
