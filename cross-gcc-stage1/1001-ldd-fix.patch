@@ -1,0 +1,32 @@
+--- a/ld/scripttempl/pe.sc
++++ b/ld/scripttempl/pe.sc
+@@ -22,11 +22,13 @@ if test "${RELOCATING}"; then
+   if test "x$LD_FLAG" = "xauto_import" ; then
+     R_DATA='*(SORT(.data$*))
+ 	    *(.rdata)
++	    *(.rdata_*)
+ 	    *(SORT(.rdata$*))'
+     R_RDATA=''
+   else
+     R_DATA='*(SORT(.data$*))'
+     R_RDATA='*(.rdata)
++	     *(.rdata_*)
+ 	     *(SORT(.rdata$*))'
+   fi
+   R_IDATA234='
+--- a/ld/scripttempl/pep.sc
++++ b/ld/scripttempl/pep.sc
+@@ -22,11 +22,13 @@ if test "${RELOCATING}"; then
+   if test "x$LD_FLAG" = "xauto_import" ; then
+     R_DATA='*(SORT(.data$*))
+ 	    *(.rdata)
++	    *(.rdata_*)
+ 	    *(SORT(.rdata$*))'
+     R_RDATA=''
+   else
+     R_DATA='*(SORT(.data$*))'
+     R_RDATA='*(.rdata)
++	     *(.rdata_*)
+ 	     *(SORT(.rdata$*))'
+   fi
+   R_IDATA234='

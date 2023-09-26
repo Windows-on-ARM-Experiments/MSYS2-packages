@@ -1,0 +1,53 @@
+--- /dev/null
++++ b/libgomp/config/cygwin/plugin-suffix.h
+@@ -0,0 +1,2 @@
++#define SONAME_PREFIX "cyg"
++#define SONAME_SUFFIX(n) ("-" #n ".dll")
+--- a/libgomp/config/darwin/plugin-suffix.h
++++ b/libgomp/config/darwin/plugin-suffix.h
+@@ -23,4 +23,5 @@
+    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+    <http://www.gnu.org/licenses/>.  */
+ 
++#define SONAME_PREFIX "lib"
+ #define SONAME_SUFFIX(n) ("." #n ".dylib")
+--- a/libgomp/config/hpux/plugin-suffix.h
++++ b/libgomp/config/hpux/plugin-suffix.h
+@@ -23,4 +23,5 @@
+    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+    <http://www.gnu.org/licenses/>.  */
+ 
++#define SONAME_PREFIX "lib"
+ #define SONAME_SUFFIX(n) (".sl." #n)
+--- a/libgomp/config/posix/plugin-suffix.h
++++ b/libgomp/config/posix/plugin-suffix.h
+@@ -23,4 +23,5 @@
+    see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+    <http://www.gnu.org/licenses/>.  */
+ 
++#define SONAME_PREFIX "lib"
+ #define SONAME_SUFFIX(n) (".so." #n)
+--- a/libgomp/configure.tgt
++++ b/libgomp/configure.tgt
+@@ -141,6 +141,10 @@ case "${target}" in
+ 	esac
+ 	;;
+ 
++  *-*-cygwin*)
++	config_path="cygwin posix"
++	;;
++
+   *-*-mingw32*)
+ 	config_path="mingw32 posix"
+ 	;;
+--- a/libgomp/target.c
++++ b/libgomp/target.c
+@@ -3844,7 +3844,7 @@ gomp_target_fini (void)
+ static void
+ gomp_target_init (void)
+ {
+-  const char *prefix ="libgomp-plugin-";
++  const char *prefix = SONAME_PREFIX "gomp-plugin-";
+   const char *suffix = SONAME_SUFFIX (1);
+   const char *cur, *next;
+   char *plugin_name;

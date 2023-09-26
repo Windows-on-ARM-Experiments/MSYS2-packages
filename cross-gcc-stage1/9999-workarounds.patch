@@ -1,0 +1,131 @@
+--- a/configure
++++ b/configure
+@@ -10277,7 +10291,7 @@ fi
+ # being built; programs in there won't even run.
+ if test "${build}" = "${host}" && test -d ${srcdir}/gcc; then
+   # Search for pre-installed headers if nothing else fits.
+-  FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$(build_tooldir)/bin/ -B$(build_tooldir)/lib/ -isystem $(build_tooldir)/include -isystem $(build_tooldir)/sys-include'
++  FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$(build_tooldir)/bin/ -B$(build_tooldir)/lib/ -isystem $(build_tooldir)/include -isystem $(build_tooldir)/sys-include -isystem /usr/cygwin/include -isystem /usr/include'
+ fi
+
+ if test "x${use_gnu_ld}" = x &&
+--- a/configure.ac
++++ b/configure.ac
+@@ -3433,7 +3435,7 @@ fi
+ # being built; programs in there won't even run.
+ if test "${build}" = "${host}" && test -d ${srcdir}/gcc; then
+   # Search for pre-installed headers if nothing else fits.
+-  FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$(build_tooldir)/bin/ -B$(build_tooldir)/lib/ -isystem $(build_tooldir)/include -isystem $(build_tooldir)/sys-include'
++  FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -B$(build_tooldir)/bin/ -B$(build_tooldir)/lib/ -isystem $(build_tooldir)/include -isystem $(build_tooldir)/sys-include -isystem /usr/cygwin/include -isystem /usr/include'
+ fi
+
+ if test "x${use_gnu_ld}" = x &&
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -1254,11 +1254,11 @@ aarch64*-*-linux*)
+ 	;;
+ aarch64*-*-msys*)
+ 	need_64bit_isa=yes
+-	tm_file="${tm_file} aarch64/aarch64-coff.h aarch64/cygming.h aarch64/msys.h aarch64/msys-w64.h aarch64/cygwin-stdint.h"
+-	xm_file=aarch64/xm-cygwin.h
++	tm_file="${tm_file} aarch64/aarch64-coff.h aarch64/cygming.h aarch64/msys.h aarch64/msys-w64.h i386/cygwin-stdint.h"
++ 	xm_file=i386/xm-cygwin.h
+ 	tmake_file="${tmake_file} aarch64/t-aarch64 aarch64/t-cygming t-slibgcc aarch64/t-msys-w64"
+ 	target_gtfiles="$target_gtfiles \$(srcdir)/config/aarch64/winnt.cc"
+-	extra_options="${extra_options} aarch64/cygming.opt aarch64/cygwin.opt"
++	extra_options="${extra_options} aarch64/cygming.opt i386/cygwin.opt"
+ 	extra_objs="${extra_objs} winnt.o winnt-stubs.o"
+ 	c_target_objs="${c_target_objs} msformat-c.o"
+ 	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
+--- a/gcc/tsystem.h
++++ b/gcc/tsystem.h
+@@ -58,10 +58,6 @@ extern void free (void *);
+ extern int atexit (void (*)(void));
+ #endif
+ 
+-#ifndef abort
+-#define abort() __builtin_trap ()
+-#endif
+-
+ #ifndef strlen
+ extern size_t strlen (const char *);
+ #endif
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -375,19 +375,19 @@ case ${host} in
+   enable_execute_stack=enable-execute-stack-mprotect.c
+   ;;
+ aarch64-*-mingw*)
+-  enable_execute_stack=config/aarch64/enable-execute-stack-mingw32.c
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+ i[34567]86-*-mingw* | x86_64-*-mingw*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+ aarch64-*-cygwin*)
+-  enable_execute_stack=config/aarch64/enable-execute-stack-mingw32.c
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+ i[34567]86-*-cygwin* | x86_64-*-cygwin*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+ aarch64-*-msys*)
+-  enable_execute_stack=config/aarch64/enable-execute-stack-mingw32.c
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
+ i[34567]86-*-msys* | x86_64-*-msys*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+--- a/libgcc/config/aarch64/t-cygming
++++ b/libgcc/config/aarch64/t-cygming
+@@ -1,17 +1,17 @@
+ # If we are building next to winsup, this will let us find the real
+ # limits.h when building libgcc2.  Otherwise, winsup must be installed
+ # first.
+-LIBGCC2_INCLUDES = -I$(srcdir)/../winsup/w32api/include
++LIBGCC2_INCLUDES = -I$(srcdir)/../winsup/w32api/include -I$(srcdir)/../winsup/include -I$(srcdir)/../winsup/cygwin/include -I/usr/include/w32api
+ 
+ CUSTOM_CRTSTUFF = yes
+ 
+-crtbegin.o: $(srcdir)/config/aarch64/cygming-crtbegin.c
+-	$(crt_compile) -fno-omit-frame-pointer  -c $<
++crtbegin.o: $(srcdir)/config/i386/cygming-crtbegin.c
++	$(crt_compile) -I/usr/include/w32api -fno-omit-frame-pointer  -c $<
+ 
+-crtbeginS.o: $(srcdir)/config/aarch64/cygming-crtbegin.c
+-	$(crt_compile) -fno-omit-frame-pointer  -c $< -DCRTSTUFFS_O
++crtbeginS.o: $(srcdir)/config/i386/cygming-crtbegin.c
++	$(crt_compile) -I/usr/include/w32api -fno-omit-frame-pointer  -c $< -DCRTSTUFFS_O
+ 
+ # We intentionally use a implementation-reserved init priority of 0,
+ # so allow the warning.
+-crtend.o: $(srcdir)/config/aarch64/cygming-crtend.c
+-	$(crt_compile) -fno-omit-frame-pointer -Wno-error -c $<
++crtend.o: $(srcdir)/config/i386/cygming-crtend.c
++	$(crt_compile) -I/usr/include/w32api -fno-omit-frame-pointer -Wno-error -c $<
+diff --git a/gcc/Makefile.in b/gcc/Makefile.in
+index 4be82e83b9e..dac5263eab1 100644
+--- a/gcc/Makefile.in
++++ b/gcc/Makefile.in
+@@ -3206,7 +3206,6 @@ stmp-int-hdrs: $(STMP_FIXINC) $(T_GLIMITS_H) $(T_STDINT_GCC_H) $(USER_H) fixinc_
+ 	done
+ 	for file in .. $(USER_H_INC_NEXT_POST); do \
+ 	  if [ X$$file != X.. ]; then \
+-	    echo "#include_next <$$file>" >>include/$$file; \
+ 	    chmod a+r include/$$file; \
+ 	  fi; \
+ 	done
+--- a/libgcc/unwind-generic.h
++++ b/libgcc/unwind-generic.h
+@@ -93,12 +93,9 @@ struct _Unwind_Exception
+   _Unwind_Exception_Class exception_class;
+   _Unwind_Exception_Cleanup_Fn exception_cleanup;
+ 
+-#if !defined (__USING_SJLJ_EXCEPTIONS__) && defined (__SEH__)
+   _Unwind_Word private_[6];
+-#else
+   _Unwind_Word private_1;
+   _Unwind_Word private_2;
+-#endif
+ 
+   /* @@@ The IA-64 ABI says that this structure must be double-word aligned.
+      Taking that literally does not make much sense generically.  Instead we
