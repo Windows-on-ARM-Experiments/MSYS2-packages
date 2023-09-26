@@ -1,0 +1,85 @@
+--- a/gcc/testsuite/jit.dg/jit.exp
++++ b/gcc/testsuite/jit.dg/jit.exp
+@@ -521,7 +521,7 @@
+     # This also ensures that the source name makes it into the
+     # pass/fail output, so that we can distinguish e.g. which test-foo
+     # is failing.
+-    set output_file "[file tail $prog].exe"
++    set output_file "[file tail $prog].xcx"
+     verbose "output_file: $output_file"
+ 
+     # Create the test executable:
+@@ -662,7 +662,7 @@
+ 	# Verify that a reproducer was generated
+ 	if { [file exists $generated_reproducer] == 1} {
+ 	    pass "found generated reproducer: $generated_reproducer"
+-	    set output_file "${generated_reproducer}.exe"
++	    set output_file "${generated_reproducer}.xcx"
+ 	    # (this overwrites output_file)
+ 
+ 	    # Try to compile the generated reproducer
+@@ -836,7 +836,7 @@
+ 
+     # Name the built executable as OUTPUT_FILENAME with
+     # ".exe" appended.
+-    set executable_from_asm ${asm_filename}.exe
++    set executable_from_asm ${asm_filename}.xsx
+     verbose "  executable_from_asm: ${executable_from_asm}"
+ 
+     # Invoke the driver to assemble/link the .s file to the .exe
+@@ -917,7 +917,7 @@
+ 
+     # Name the linked executable as OUTPUT_FILENAME with
+     # ".exe" appended.
+-    set executable_from_obj ${obj_filename}.exe
++    set executable_from_obj ${obj_filename}.xox
+     verbose "  executable_from_obj: ${executable_from_obj}"
+ 
+     # Invoke the driver to link the .o file to the .exe
+@@ -969,7 +969,7 @@
+     # Build a test executable from
+     # verify-dynamic-library.c
+     set test_src "verify-dynamic-library.c"
+-    set test_executable ${test_src}.exe
++    set test_executable ${test_src}.xdx
+     verbose "  test_executable: ${test_executable}"
+ 
+     # Invoke the driver to build the test executable
+--- a/gcc/testsuite/jit.dg/test-compile-to-assembler.c
++++ b/gcc/testsuite/jit.dg/test-compile-to-assembler.c
+@@ -10,4 +10,4 @@
+ #include "create-code-for-hello-world-executable.h"
+ 
+ /* { dg-final { jit-verify-output-file-was-created "" } } */
+-/* { dg-final { jit-verify-assembler "hello from ./output-of-test-compile-to-assembler.c.s.exe" } } */
++/* { dg-final { jit-verify-assembler "hello from ./output-of-test-compile-to-assembler.c.s.xsx" } } */
+--- a/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c
++++ b/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c
+@@ -63,4 +63,4 @@
+ }
+ 
+ /* { dg-final { jit-verify-output-file-was-created "" } } */
+-/* { dg-final { jit-verify-dynamic-library "hello from ./verify-dynamic-library.c.exe" } } */
++/* { dg-final { jit-verify-dynamic-library "hello from ./verify-dynamic-library.c.xdx" } } */
+--- a/gcc/testsuite/jit.dg/test-compile-to-executable.c
++++ b/gcc/testsuite/jit.dg/test-compile-to-executable.c
+@@ -5,9 +5,9 @@
+ 
+ #define TEST_COMPILING_TO_FILE
+ #define OUTPUT_KIND      GCC_JIT_OUTPUT_KIND_EXECUTABLE
+-#define OUTPUT_FILENAME  "output-of-test-compile-to-executable.c.exe"
++#define OUTPUT_FILENAME  "output-of-test-compile-to-executable.c.xcx.exe"
+ #include "harness.h"
+ #include "create-code-for-hello-world-executable.h"
+ 
+ /* { dg-final { jit-verify-output-file-was-created "" } } */
+-/* { dg-final { jit-verify-executable "hello from ./output-of-test-compile-to-executable.c.exe" } } */
++/* { dg-final { jit-verify-executable "hello from ./output-of-test-compile-to-executable.c.xcx" } } */
+--- a/gcc/testsuite/jit.dg/test-compile-to-object.c
++++ b/gcc/testsuite/jit.dg/test-compile-to-object.c
+@@ -10,4 +10,4 @@
+ #include "create-code-for-hello-world-executable.h"
+ 
+ /* { dg-final { jit-verify-output-file-was-created "" } } */
+-/* { dg-final { jit-verify-object "hello from ./output-of-test-compile-to-object.c.o.exe" } } */
++/* { dg-final { jit-verify-object "hello from ./output-of-test-compile-to-object.c.o.xox" } } */
