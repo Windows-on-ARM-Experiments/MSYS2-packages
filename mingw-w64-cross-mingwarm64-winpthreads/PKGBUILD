@@ -17,19 +17,32 @@ makedepends=("git" "${_mingw_suff}-mingwarm64-gcc" "${_mingw_suff}-mingwarm64-bi
 optdepends=()
 backup=()
 options=('!strip' '!buildflags' 'staticlibs' '!emptydirs' '!buildflags')
-_commit='a1bf19077c012284d0398177799ea0476c1a1e79'
-source=("mingw-w64"::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#commit=$_commit"
-        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch)
+source=("mingw-w64"::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#branch=woarm64"
+        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+        9998-add-mno-outline-atomics.patch)
 sha256sums=('SKIP'
-            '2e779bcc60a1422b23e0cfdb5c0f6851f2382592bb4675d08a6bdef78d5e5c10')
+            '2e779bcc60a1422b23e0cfdb5c0f6851f2382592bb4675d08a6bdef78d5e5c10'
+            'SKIP')
 msys2_references=(
   'archlinux: mingw-w64-winpthreads'
   'cpe: cpe:/a:mingw-w64:mingw-w64'
 )
 
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -i "${srcdir}"/${_fname}
+  done
+}
+
 prepare() {
   cd "$srcdir/mingw-w64"
   git apply "${srcdir}"/0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+
+  apply_patch_with_msg \
+    9998-add-mno-outline-atomics.patch
+
   cd "${srcdir}"/mingw-w64/mingw-w64-libraries/winpthreads
   autoreconf -vfi
 }
