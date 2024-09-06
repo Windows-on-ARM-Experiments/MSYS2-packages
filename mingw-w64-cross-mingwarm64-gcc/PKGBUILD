@@ -7,7 +7,7 @@ _targetpkgs=("${_mingw_suff}-mingwarm64-${_realname}")
 pkgname=("${_targetpkgs[@]}")
 _realver=15.0.0
 pkgver=15.0.0dev
-pkgrel=2
+pkgrel=3
 pkgdesc="Cross GCC for the MinGW-w64"
 arch=('aarch64' 'i686' 'x86_64')
 url="https://gcc.gnu.org"
@@ -21,10 +21,10 @@ depends=("zlib" "mpc" "isl" "libzstd")
 makedepends=("gcc" 'lndir' "gmp-devel" "mpc-devel" "zlib-devel" "isl-devel" 'autotools' 'gperf' 'libzstd-devel'
              "${_mingw_suff}-mingwarm64-crt" "${_mingw_suff}-mingwarm64-headers" "${_mingw_suff}-mingwarm64-winpthreads"
              "${_mingw_suff}-mingwarm64-windows-default-manifest" "${_mingw_suff}-mingwarm64-binutils" "git")
+provides=("mingw-w64-aarch64-cc" "mingw-w64-aarch64-gcc-libs")
 #checkdepends=('dejagnu')
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
-_commit='f9667acd4ca73941cca10aeecab52f58640297e2'
-source=("${_realname}"::"git+https://github.com/Windows-on-ARM-Experiments/gcc-woarm64.git#commit=${_commit}"
+source=("${_realname}"::"git+https://github.com/Windows-on-ARM-Experiments/gcc-woarm64.git#branch=woarm64"
         0001-Cygwin-use-SysV-ABI-on-x86_64.patch
         0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
         0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
@@ -42,7 +42,7 @@ source=("${_realname}"::"git+https://github.com/Windows-on-ARM-Experiments/gcc-w
         0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
         0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
         0200-add-m-no-align-vector-insn-option-for-i386.patch)
-sha256sums=('a289aa13355060a13761be238dd5bd04eea81cf09036c54acbf86d452be79e7d'
+sha256sums=('SKIP'
             'bc788aa466a83184d285cc2f6c1ffc40c6ed416dd08c6999015262a53f1ab1b5'
             '704acfaeb11d24d3fe5aab34bc883c184ca93aff03d752016c9a50fdd82c5655'
             'c5676fd62d5f7f69be26062b95d42ef47f28151af83b83efa3998ecd8e939e19'
@@ -119,8 +119,8 @@ _build() {
   local _langs="c,lto,c++"
   case "${_target}" in
     aarch64*)
-      local _arch=armv8.1-a
-      local _tune=cortex-x1
+      local _arch=armv8-a
+      local _tune=generic
       local _conf=""
       _langs="${_langs} fortran"
     ;;
