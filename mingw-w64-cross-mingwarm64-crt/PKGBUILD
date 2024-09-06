@@ -7,7 +7,7 @@ pkgbase="${_mingw_suff}-mingwarm64-${_realname}"
 _targetpkgs=("${_mingw_suff}-mingwarm64-${_realname}")
 pkgname=("${_targetpkgs[@]}")
 pkgver=12.0.0dev
-pkgrel=2
+pkgrel=1
 pkgdesc='MinGW-w64 CRT for cross-compiler'
 arch=('i686' 'x86_64')
 url='https://www.mingw-w64.org'
@@ -16,14 +16,33 @@ license=('custom')
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
 makedepends=("git" "${_mingw_suff}-mingwarm64-gcc" "${_mingw_suff}-mingwarm64-binutils" "${_mingw_suff}-mingwarm64-headers" 'autotools')
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
-_commit='a1bf19077c012284d0398177799ea0476c1a1e79'
-source=("mingw-w64"::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#commit=$_commit")
+source=("mingw-w64"::"git+https://github.com/Windows-on-ARM-Experiments/mingw-woarm64.git#branch=woarm64"
+        9998-add-mno-outline-atomics.patch)
 
-sha256sums=('dca6aaa5ababa53aaee63f5f0ebbf4570896b91e2ff41bff055dc91af75f2e34')
+sha256sums=('SKIP'
+            'SKIP')
 msys2_references=(
   'archlinux: mingw-w64-crt'
   'cpe: cpe:/a:mingw-w64:mingw-w64'
 )
+
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -i "${srcdir}"/${_fname}
+  done
+}
+
+prepare() {
+  cd "$srcdir/mingw-w64"
+
+  apply_patch_with_msg \
+    9998-add-mno-outline-atomics.patch
+
+  cd "${srcdir}"/mingw-w64/mingw-w64-crt
+  autoreconf -vfi
+}
 
 _build() {
   _target=$1
@@ -39,7 +58,7 @@ _build() {
   if [[ "${_target}" == "x86_64-w64-mingw32ucrt" ]]; then
     _default_msvcrt=ucrt
   elif [[ "${_target}" == "aarch64-w64-mingw32" ]]; then
-    _default_msvcrt=ucrt
+    _default_msvcrt=msvcrt
   else
     _default_msvcrt=msvcrt
   fi
