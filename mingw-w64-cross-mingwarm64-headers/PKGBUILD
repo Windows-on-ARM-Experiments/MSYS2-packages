@@ -32,7 +32,7 @@ _build() {
     _default_msvcrt=ucrt
     _default_win32_winnt=0x603  # Windows 8.1
   elif [[ "${_target}" == "aarch64-w64-mingw32" ]]; then
-    _default_msvcrt=ucrt
+    _default_msvcrt=msvcrt
     _default_win32_winnt=0xA00  # Windows 10
   else
     _default_msvcrt=msvcrt
