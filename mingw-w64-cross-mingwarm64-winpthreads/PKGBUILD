@@ -57,13 +57,13 @@ _build() {
     --host=${_target} \
     --enable-static \
     --enable-shared
-  make
+  make -j$(nproc)
 }
 
 _package() {
   _target=$1
   cd ${srcdir}/winpthreads-build-${_target}
-  make DESTDIR=${pkgdir} install
+  make -j$(nproc) DESTDIR=${pkgdir} install
 }
 
 build() {

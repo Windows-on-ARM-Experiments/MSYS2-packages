@@ -54,7 +54,7 @@ _package() {
   _target=$1
   msg "Installing ${_target} headers"
   cd ${srcdir}/headers-${_target}
-  make DESTDIR=${pkgdir} install
+  make -j$(nproc) DESTDIR=${pkgdir} install
 
   rm ${pkgdir}/opt/${_target}/include/pthread_signal.h
   rm ${pkgdir}/opt/${_target}/include/pthread_time.h
