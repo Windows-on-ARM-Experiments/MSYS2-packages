@@ -72,7 +72,7 @@ _build() {
   --disable-dependency-tracking \
   ${_crt_configure_args}
 
-  make
+  make -j$(nproc)
 }
 
 build() {
@@ -87,7 +87,7 @@ _package() {
   _target=$1
   msg "Installing ${_target} crt"
   cd ${srcdir}/crt-${_target}
-  make DESTDIR=${pkgdir} install
+  make -j$(nproc) DESTDIR=${pkgdir} install
 }
 
 package_mingw-w64-cross-mingwarm64-crt() {

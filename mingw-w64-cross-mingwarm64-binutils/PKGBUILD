@@ -72,7 +72,7 @@ _build() {
     --with-system-zlib \
     $_conf
 
-  make
+  make -j$(nproc)
 }
 
 _check() {
@@ -81,13 +81,13 @@ _check() {
 
   # unset LDFLAGS as testsuite makes assumptions about which ones are active
   # do not abort on errors - manually check log files
-  make LDFLAGS="" -k check || true
+  make -j$(nproc) LDFLAGS="" -k check || true
 }
 
 _package() {
   _target=$1
   cd ${srcdir}/binutils-build-${_target}
-  make DESTDIR=${pkgdir} install
+  make -j$(nproc) DESTDIR=${pkgdir} install
   rm -rf "${pkgdir}/opt/share/info"
   rm -rf "${pkgdir}/opt/share/locale"
   rm -rf "${pkgdir}/opt/share/gdb"
